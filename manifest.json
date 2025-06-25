@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "name": "Clauer",
   "short_name": "Clauer",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1e2127",
   "theme_color": "#23272e",
