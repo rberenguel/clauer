@@ -1,7 +1,7 @@
 {
   "version": "0.0.1",
-  "name": "SDMT Cognitive Test",
-  "short_name": "SDMT",
+  "name": "Clauer",
+  "short_name": "Clauer",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#1e2127",
