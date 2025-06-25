@@ -17,7 +17,7 @@ body {
   color: var(--text);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 100vh;
   margin: 0;
   text-align: center;
@@ -49,7 +49,9 @@ button {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
+  margin: auto;
   margin-bottom: 12px;
+  width: 90%;
 }
 .grid-item {
   background-color: var(--surface);
@@ -58,17 +60,17 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.8em;
+  font-size: 1.5em;
   aspect-ratio: 1 / 1;
 }
 #number-pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 5px;
   width: 70%;
   margin: auto;
-  margin-top: 25px;
-  margin-bottom: 15px;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 #number-pad button {
   background-color: var(--surface);
