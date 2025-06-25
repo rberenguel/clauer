@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clauer</title>
+    <link rel="icon" type="image/png" href="icon.png" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="fonts/iconoir/iconoir.css" />
+    <link rel="stylesheet" href="fonts/inter.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#23272e" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="start-screen">
+        <h1>Clauer</h1>
+        <p>
+          Match the sequence of 30 icons to their corresponding numbers using
+          the key provided. Your time and accuracy will be measured. Hard mode
+          is mentally painful.
+        </p>
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input type="checkbox" id="hard-mode-toggle" />
+            <span class="slider round"></span>
+          </label>
+          <label for="hard-mode-toggle" class="toggle-text-label"
+            >Hard Mode</label
+          >
+        </div>
+        <div id="icon-preview-grid"></div>
+        <button id="start-btn">Start</button>
+      </div>
+
+      <div id="game-screen" class="hidden">
+        <div id="key-display" class="grid"></div>
+        <div id="number-pad" class="grid"></div>
+        <div id="sequence-display" class="grid"></div>
+      </div>
+
+      <div id="results-screen" class="hidden">
+        <h2>Results</h2>
+        <p id="time-result"></p>
+        <p id="accuracy-result"></p>
+        <button id="restart-btn">Play Again</button>
+      </div>
+
+      <div id="pause-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h2>Paused</h2>
+          <p>
+            This is an implementation of the Symbol Digit Modalities Test
+            (SDMT), a neuropsychological test of processing speed, attention,
+            and visual scanning.
+          </p>
+          <p>Match the symbols as quickly and accurately as you can.</p>
+          <button id="resume-btn">Resume</button>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
