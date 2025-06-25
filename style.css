@@ -26,7 +26,7 @@ body {
 #app {
   width: 100%;
   max-width: 480px;
-  padding: 20px;
+  padding: 5px;
   box-sizing: border-box;
 }
 h1 {
@@ -36,11 +36,11 @@ button {
   background-color: var(--primary);
   color: var(--background);
   border: none;
-  padding: 15px 25px;
+  padding: 10px 20px;
   border-radius: 8px;
   font-size: 1.2em;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 .hidden {
   display: none;
@@ -49,7 +49,7 @@ button {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 12px;
 }
 .grid-item {
   background-color: var(--surface);
@@ -58,14 +58,17 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 2.2em;
+  font-size: 1.8em;
   aspect-ratio: 1 / 1;
 }
 #number-pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+  width: 70%;
+  margin: auto;
   margin-top: 25px;
+  margin-bottom: 15px;
 }
 #number-pad button {
   background-color: var(--surface);
