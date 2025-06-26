@@ -117,7 +117,6 @@ button {
     transform: translate3d(4px, 0, 0);
   }
 }
-
 #icon-preview-grid {
   display: grid;
   grid-template-columns: repeat(var(--grid-cols, 7), 1fr);
@@ -125,17 +124,13 @@ button {
   margin: 25px auto;
   max-width: 50vw;
 }
-
 .preview-icon {
-  font-size: 1.5em;
-  opacity: 0.6;
+  font-size: 60%;
   aspect-ratio: 1 / 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-/* Hard Mode Toggle Styles */
 .toggle-container {
   display: flex;
   justify-content: center;
@@ -190,7 +185,6 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -206,7 +200,6 @@ input:checked + .slider:before {
   pointer-events: none;
   transition: opacity 0.2s ease-in-out;
 }
-
 .modal-overlay.visible {
   opacity: 1;
   pointer-events: auto;
@@ -219,29 +212,65 @@ input:checked + .slider:before {
   max-width: 400px;
   text-align: center;
 }
-
 .modal-content h2 {
   margin-top: 0;
 }
-
-#pause-btn-container {
-  position: relative;
-  background: transparent;
-  border: none;
-}
-
-#pause-btn {
-  position: absolute;
-  width: 50% !important;
-  height: 50%;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2em;
-}
-
 #key-display {
   margin-top: 5px;
+}
+#pause-button-container {
+  text-align: center;
+  margin: 5px auto 15px auto;
+  width: 70%;
+}
+#pause-button-container #pause-btn {
+  background-color: var(--surface);
+  color: var(--text);
+  width: 100%;
+  margin: 0;
+  font-size: 1.8em;
+  padding: 8px;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.preview-grid-gradient {
+  /* Main gradient properties */
+  font-family: iconoir;
+  background-image: linear-gradient(
+    32deg,
+    #c60,
+    #cc0,
+    #0cc,
+    #06c,
+    #0cc,
+    #cc0,
+    #c60
+  );
+  background-size: 200% 200%; /* Make the background large enough to move */
+
+  /* Clipping properties */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* Animation */
+  animation: gradientShift 10s linear infinite;
+
+  /* The conflicting property has been REMOVED: */
+  /* background-attachment: fixed; */
+
+  /* Demo styles */
+  font-size: 64px;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }

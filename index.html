@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="icon.png" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="fonts/iconoir/iconoir.css" />
+    <link rel="stylesheet" href="fonts/iconoir/iconoir-font.css" />
     <link rel="stylesheet" href="fonts/inter.css" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#23272e" />
@@ -30,14 +31,19 @@
           >
         </div>
         <h4>Icons will look like these:</h4>
-        <div id="icon-preview-grid"></div>
+        <div id="icon-preview-grid" class="preview-grid-gradient"></div>
         <button id="start-btn">Start</button>
       </div>
 
       <div id="game-screen" class="hidden">
-        <div id="key-display" class="grid"></div>
-        <div id="number-pad" class="grid"></div>
         <div id="sequence-display" class="grid"></div>
+        <div id="number-pad" class="grid"></div>
+        <div id="pause-button-container">
+          <button id="pause-btn">
+            <span class="iconoir iconoir-pause"></span>
+          </button>
+        </div>
+        <div id="key-display" class="grid"></div>
       </div>
 
       <div id="results-screen" class="hidden">

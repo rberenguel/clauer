@@ -1,33 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
   const ICONS = [
-    "birthday-cake",
-    "book",
-    "cycling",
-    "medal-1st",
-    "gym",
-    "wolf",
-    "bounce-right",
-    "sound-high",
-    "bathroom",
-    "developer",
-    "floppy-disk",
-    "wristwatch",
-    "attachment",
-    "emoji",
-    "pizza-slice",
-    "orange-slice",
-    "arcade",
-    "pacman",
-    "box-iso",
-    "light-bulb",
-    "sofa",
-    "small-lamp",
-    "gift",
-    "edit-pencil",
-    "rocket",
+    { icon: "birthday-cake", font: "&#xe088;" },
+    { icon: "book", font: "&#xe094;" },
+    { icon: "cycling", font: "&#xe13c;" },
+    { icon: "medal-1st", font: "&#xe2f5;" },
+    { icon: "gym", font: "&#xe244;" },
+    { icon: "wolf", font: "&#xe536;" },
+    { icon: "bounce-right", font: "&#xe0a3;" },
+    { icon: "sound-high", font: "&#xe469;" },
+    { icon: "bathroom", font: "&#xe469;" },
+    { icon: "developer", font: "&#xe469;" },
+    { icon: "floppy-disk", font: "&#xe201;" },
+    { icon: "wristwatch", font: "&#xe539;" },
+    { icon: "attachment", font: "&#xe061;" },
+    { icon: "emoji", font: "&#xe1b9;" },
+    { icon: "pizza-slice", font: "&#xe3a9;" },
+    { icon: "orange-slice", font: "&#xe363;" },
+    { icon: "arcade", font: "&#xe037;" },
+    { icon: "pacman", font: "&#xe36a;" },
+    { icon: "box-iso", font: "&#xe0a8;" },
+    { icon: "light-bulb", font: "&#xe2bb;" },
+    { icon: "sofa", font: "&#xe463;" },
+    { icon: "small-lamp", font: "&#xe45b;" },
+    { icon: "gift", font: "&#xe220;" },
+    { icon: "edit-pencil", font: "&#xe19a;" },
+    { icon: "rocket", font: "&#xe3f2;" },
   ];
   const TOTAL_ITEMS = 30;
-  const KEY_SIZE = 10;
+  const KEY_SIZE = 9;
   const BATCH_SIZE = 10;
 
   let keyMap = new Map();
@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const startBtn = document.getElementById("start-btn");
   const restartBtn = document.getElementById("restart-btn");
   const resumeBtn = document.getElementById("resume-btn");
+  const pauseBtn = document.getElementById("pause-btn");
   const hardModeToggle = document.getElementById("hard-mode-toggle");
 
   const keyDisplay = document.getElementById("key-display");
@@ -61,19 +62,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const n = randomizedIcons.length;
     const cols = Math.ceil(Math.sqrt(n));
     iconPreviewGrid.style.setProperty("--grid-cols", cols);
-    randomizedIcons.forEach((iconName) => {
+    randomizedIcons.forEach((icon) => {
       const iconWrapper = document.createElement("div");
       iconWrapper.className = "preview-icon";
-      iconWrapper.innerHTML = `<span class="iconoir iconoir-${iconName}"></span>`;
+      iconWrapper.innerHTML = `${icon.font}`;
       iconPreviewGrid.appendChild(iconWrapper);
     });
   }
 
   function generateNewKey(iconsForKey) {
     keyMap.clear();
-    const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-    iconsForKey.forEach((iconName, i) => {
-      keyMap.set(iconName, digits[i]);
+    const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    iconsForKey.forEach((icon, i) => {
+      keyMap.set(icon.icon, digits[i]);
     });
     renderKey();
   }
@@ -114,17 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderKey() {
     keyDisplay.innerHTML = "";
-    keyMap.forEach((digit, iconName) => {
+    keyMap.forEach((digit, icon) => {
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir iconoir-${iconName}"></span><span class="icon-value">${digit}</span>`;
+      item.innerHTML = `<span class="iconoir iconoir-${icon}"></span><span class="icon-value">${digit}</span>`;
       keyDisplay.appendChild(item);
     });
   }
 
   function renderNumberPad() {
     numberPad.innerHTML = "";
-    const keypadOrder = [7, 8, 9, 4, 5, 6, 1, 2, 3];
+    const keypadOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     keypadOrder.forEach((digit) => {
       const button = document.createElement("button");
@@ -132,23 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", () => handleNumberPress(digit));
       numberPad.appendChild(button);
     });
-
-    const spacer = document.createElement("div");
-    const zeroButton = document.createElement("button");
-    zeroButton.textContent = "0";
-    zeroButton.addEventListener("click", () => handleNumberPress(0));
-
-    const pauseContainer = document.createElement("div");
-    pauseContainer.id = "pause-btn-container";
-    const pauseButton = document.createElement("button");
-    pauseButton.id = "pause-btn";
-    pauseButton.innerHTML = '<span class="iconoir iconoir-pause"></span>';
-    pauseButton.addEventListener("click", pauseGame);
-    pauseContainer.appendChild(pauseButton);
-
-    numberPad.appendChild(spacer);
-    numberPad.appendChild(zeroButton);
-    numberPad.appendChild(pauseContainer);
   }
 
   function renderSequenceBatch() {
@@ -157,10 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const end = start + BATCH_SIZE;
     const batch = sequence.slice(start, end);
 
-    batch.forEach((iconName) => {
+    batch.forEach((icon) => {
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir iconoir-${iconName}"></span>`;
+      item.innerHTML = `<span class="iconoir iconoir-${icon.icon}"></span>`;
       sequenceDisplay.appendChild(item);
     });
     highlightCurrentItem();
@@ -256,4 +240,5 @@ document.addEventListener("DOMContentLoaded", () => {
   startBtn.addEventListener("click", startGame);
   restartBtn.addEventListener("click", startGame);
   resumeBtn.addEventListener("click", resumeGame);
+  pauseBtn.addEventListener("click", pauseGame);
 });
