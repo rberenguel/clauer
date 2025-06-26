@@ -3,7 +3,9 @@
   --surface: #23272e;
   --primary: #61afef;
   --text: #abb2bf;
+  --highlight: #f06f29;
   --error: #e06c75;
+  --correct: #98c379; /* Added for correct answer indication */
 }
 body {
   font-family:
@@ -17,8 +19,8 @@ body {
   color: var(--text);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  height: 100vh;
+  align-items: center;
+  min-height: 100svh;
   margin: 0;
   text-align: center;
   font-size: 1.1em;
@@ -62,6 +64,8 @@ button {
   align-items: center;
   font-size: 1.5em;
   aspect-ratio: 1 / 1;
+  outline: 3px solid transparent; /* Prepare for outline */
+  transition: outline-color 0.2s ease;
 }
 #number-pad {
   display: grid;
@@ -86,11 +90,28 @@ button {
   margin-top: 4px;
 }
 .current-item {
-  outline: 3px solid var(--primary);
+  color: var(--highlight);
+  outline-color: var(--primary);
   box-shadow: 0 0 15px var(--primary);
 }
 .shake {
   animation: shake 0.5s;
+  outline-color: var(--error);
+  box-shadow: 0 0 15px var(--error);
+}
+/* New styles for correct answer feedback */
+.correct-answer {
+  animation: fade-green 0.5s ease-out;
+}
+@keyframes fade-green {
+  from {
+    outline-color: var(--correct);
+    box-shadow: 0 0 15px var(--correct);
+  }
+  to {
+    outline-color: #00000000;
+    box-shadow: 0 0 15px #00000000;
+  }
 }
 #results-screen h2 {
   font-size: 2em;
@@ -125,7 +146,7 @@ button {
   max-width: 50vw;
 }
 .preview-icon {
-  font-size: 60%;
+  font-size: 8svw;
   aspect-ratio: 1 / 1;
   display: flex;
   justify-content: center;

@@ -163,17 +163,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleNumberPress(digit) {
     if (!gameActive || isPaused) return;
-
-    const correctDigit = keyMap.get(sequence[currentItemIndex]);
+    const correctDigit = keyMap.get(sequence[currentItemIndex].icon);
     const currentElement =
       sequenceDisplay.children[currentItemIndex % BATCH_SIZE];
 
     if (digit === correctDigit) {
+      currentElement.classList.add("correct-answer");
+      setTimeout(() => {
+        currentElement.classList.remove("correct-answer");
+      }, 1500);
+
       currentItemIndex++;
+
       if (currentItemIndex >= TOTAL_ITEMS) {
         endGame();
         return;
       }
+
       if (currentItemIndex % BATCH_SIZE === 0) {
         if (isHardMode) {
           const currentBatchStart = currentItemIndex;
@@ -194,7 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => currentElement.classList.remove("shake"), 500);
     }
   }
-
   function startGame() {
     setupGame();
     gameActive = true;
