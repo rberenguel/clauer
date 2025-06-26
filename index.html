@@ -50,7 +50,24 @@
         <h2>Results</h2>
         <p id="time-result"></p>
         <p id="accuracy-result"></p>
-        <button id="restart-btn">Play Again</button>
+
+        <div id="play-again-controls">
+          <div class="toggle-container">
+            <label class="toggle-switch">
+              <input type="checkbox" id="hard-mode-toggle-results" />
+              <span class="slider round"></span>
+            </label>
+            <label for="hard-mode-toggle-results" class="toggle-text-label"
+              >Hard Mode</label
+            >
+          </div>
+          <div class="results-buttons">
+            <button id="copy-btn">Copy as Markdown</button>
+            <button id="restart-btn">Play Again</button>
+          </div>
+        </div>
+
+        <div id="results-table-container"></div>
       </div>
 
       <div id="pause-modal" class="modal-overlay">

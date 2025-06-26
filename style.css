@@ -252,7 +252,68 @@ input:checked + .slider:before {
   font-size: 1.8em;
   padding: 8px;
 }
-
+#play-again-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 10px 0 20px 0;
+}
+#play-again-controls .toggle-container {
+  margin: 0 0 15px 0;
+}
+.results-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+.results-buttons button {
+  flex-grow: 1;
+  margin-top: 0;
+}
+#copy-btn {
+  background-color: var(--correct);
+}
+.results-table {
+  width: 100%;
+  margin: 20px 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.results-table th,
+.results-table td {
+  border: 1px solid var(--surface);
+  padding: 8px 12px;
+  text-align: center;
+}
+.results-table th {
+  background-color: var(--surface);
+}
+.results-table td:nth-child(n + 2) {
+  text-align: right;
+  font-family: monospace;
+}
+.results-table .iconoir {
+  margin-right: 8px;
+  color: var(--primary);
+}
+.sub-row {
+  color: var(--text);
+}
+.sub-row td {
+  padding-left: 20px;
+}
+.session-header td,
+.total-header td {
+  background-color: var(--surface);
+  color: var(--primary);
+  font-weight: bold;
+  text-align: center !important;
+}
+.total-header td {
+  color: var(--highlight);
+}
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -261,9 +322,7 @@ input:checked + .slider:before {
     background-position: 100% 50%;
   }
 }
-
 .preview-grid-gradient {
-  /* Main gradient properties */
   font-family: iconoir;
   background-image: linear-gradient(
     32deg,
@@ -275,20 +334,11 @@ input:checked + .slider:before {
     #cc0,
     #c60
   );
-  background-size: 200% 200%; /* Make the background large enough to move */
-
-  /* Clipping properties */
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-
-  /* Animation */
   animation: gradientShift 10s linear infinite;
-
-  /* The conflicting property has been REMOVED: */
-  /* background-attachment: fixed; */
-
-  /* Demo styles */
   font-size: 64px;
   padding: 1rem;
   display: flex;
