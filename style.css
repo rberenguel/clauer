@@ -5,7 +5,7 @@
   --text: #abb2bf;
   --highlight: #f06f29;
   --error: #e06c75;
-  --correct: #98c379; /* Added for correct answer indication */
+  --correct: #98c379;
 }
 body {
   font-family:
@@ -99,7 +99,6 @@ button {
   outline-color: var(--error);
   box-shadow: 0 0 15px var(--error);
 }
-/* New styles for correct answer feedback */
 .correct-answer {
   animation: fade-green 0.5s ease-out;
 }
@@ -152,11 +151,67 @@ button {
   justify-content: center;
   align-items: center;
 }
+.game-parameters {
+  background-color: var(--surface);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+}
+.param-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.param-control label {
+  font-size: 0.9em;
+  font-weight: 500;
+}
+.param-input-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.param-btn {
+  background-color: var(--background);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  width: 36px;
+  height: 36px;
+  font-size: 1.5em;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  touch-action: manipulation;
+}
+.param-value {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: var(--text);
+  min-width: 40px;
+  text-align: center;
+}
+
+.settings-toggles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin: 20px 0;
+}
 .toggle-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
   gap: 12px;
 }
 .toggle-text-label {
@@ -236,8 +291,32 @@ input:checked + .slider:before {
 .modal-content h2 {
   margin-top: 0;
 }
+#key-display-wrapper {
+  position: relative;
+  width: 90%;
+  margin: 5px auto 12px auto;
+}
+#key-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 8px;
+}
+#key-timer rect {
+  fill: transparent;
+  stroke: var(--highlight);
+  stroke-width: 4px;
+  vector-effect: non-scaling-stroke;
+}
 #key-display {
-  margin-top: 5px;
+  margin-top: 0;
+}
+#key-display.hidden-by-memorize {
+  visibility: hidden;
 }
 #pause-button-container {
   text-align: center;
@@ -255,12 +334,15 @@ input:checked + .slider:before {
 #play-again-controls {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0;
+  align-items: stretch;
+  gap: 15px;
   margin: 10px 0 20px 0;
 }
-#play-again-controls .toggle-container {
-  margin: 0 0 15px 0;
+#play-again-controls .settings-toggles {
+  margin: 0;
+}
+#play-again-controls .game-parameters {
+  margin: 0;
 }
 .results-buttons {
   display: flex;
@@ -304,8 +386,7 @@ input:checked + .slider:before {
 .sub-row td {
   padding-left: 20px;
 }
-.session-header td,
-.total-header td {
+.session-header td {
   background-color: var(--surface);
   color: var(--primary);
   font-weight: bold;

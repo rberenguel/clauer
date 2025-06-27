@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Clauer</title>
     <link rel="icon" type="image/png" href="icon.png" />
     <link rel="stylesheet" href="style.css" />
@@ -15,24 +18,106 @@
   <body>
     <div id="app">
       <div id="start-screen">
-        <h1>Clauer</h1>
-        <p>
-          Match the sequence of 30 icons (shown at the bottom) to their
-          corresponding numbers of the key (provided at the top). Your time and
-          accuracy will be measured. Hard mode is mentally painful.
-        </p>
-        <div class="toggle-container">
-          <label class="toggle-switch">
-            <input type="checkbox" id="hard-mode-toggle" />
-            <span class="slider round"></span>
-          </label>
-          <label for="hard-mode-toggle" class="toggle-text-label"
-            >Hard Mode</label
-          >
-        </div>
-        <h4>Icons will look like these:</h4>
         <div id="icon-preview-grid" class="preview-grid-gradient"></div>
         <button id="start-btn">Start</button>
+        <div class="game-parameters">
+          <div class="param-control">
+            <label>Total Items</label>
+            <div class="param-input-group">
+              <button
+                class="param-btn"
+                data-param="totalItems"
+                data-step="-1"
+                aria-label="Decrease Total Items"
+              >
+                -
+              </button>
+              <span id="total-items-value" class="param-value">30</span>
+              <button
+                class="param-btn"
+                data-param="totalItems"
+                data-step="1"
+                aria-label="Increase Total Items"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div class="param-control">
+            <label>Key Size</label>
+            <div class="param-input-group">
+              <button
+                class="param-btn"
+                data-param="keySize"
+                data-step="-1"
+                aria-label="Decrease Key Size"
+              >
+                -
+              </button>
+              <span id="key-size-value" class="param-value">9</span>
+              <button
+                class="param-btn"
+                data-param="keySize"
+                data-step="1"
+                aria-label="Increase Key Size"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div class="param-control">
+            <label>Batch Size</label>
+            <div class="param-input-group">
+              <button
+                class="param-btn"
+                data-param="batchSize"
+                data-step="-1"
+                aria-label="Decrease Batch Size"
+              >
+                -
+              </button>
+              <span id="batch-size-value" class="param-value">10</span>
+              <button
+                class="param-btn"
+                data-param="batchSize"
+                data-step="1"
+                aria-label="Increase Batch Size"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-toggles">
+          <div class="toggle-container">
+            <label class="toggle-switch">
+              <input type="checkbox" id="hard-mode-toggle" />
+              <span class="slider round"></span>
+            </label>
+            <label for="hard-mode-toggle" class="toggle-text-label"
+              >Hard Mode</label
+            >
+          </div>
+          <div class="toggle-container">
+            <label class="toggle-switch">
+              <input type="checkbox" id="shuffle-mode-toggle" />
+              <span class="slider round"></span>
+            </label>
+            <label for="shuffle-mode-toggle" class="toggle-text-label"
+              >Shuffle Key</label
+            >
+          </div>
+          <div class="toggle-container">
+            <label class="toggle-switch">
+              <input type="checkbox" id="memorize-mode-toggle" />
+              <span class="slider round"></span>
+            </label>
+            <label for="memorize-mode-toggle" class="toggle-text-label"
+              >Memorize Key</label
+            >
+          </div>
+        </div>
       </div>
 
       <div id="game-screen" class="hidden">
@@ -43,7 +128,12 @@
             <span class="iconoir iconoir-pause"></span>
           </button>
         </div>
-        <div id="key-display" class="grid"></div>
+        <div id="key-display-wrapper">
+          <svg id="key-timer" class="hidden">
+            <rect width="100%" height="100%"></rect>
+          </svg>
+          <div id="key-display" class="grid"></div>
+        </div>
       </div>
 
       <div id="results-screen" class="hidden">
@@ -52,15 +142,110 @@
         <p id="accuracy-result"></p>
 
         <div id="play-again-controls">
-          <div class="toggle-container">
-            <label class="toggle-switch">
-              <input type="checkbox" id="hard-mode-toggle-results" />
-              <span class="slider round"></span>
-            </label>
-            <label for="hard-mode-toggle-results" class="toggle-text-label"
-              >Hard Mode</label
-            >
+          <div class="game-parameters">
+            <div class="param-control">
+              <label>Total Items</label>
+              <div class="param-input-group">
+                <button
+                  class="param-btn"
+                  data-param="totalItems"
+                  data-step="-1"
+                  aria-label="Decrease Total Items"
+                >
+                  -
+                </button>
+                <span id="total-items-value-results" class="param-value"
+                  >30</span
+                >
+                <button
+                  class="param-btn"
+                  data-param="totalItems"
+                  data-step="1"
+                  aria-label="Increase Total Items"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="param-control">
+              <label>Key Size</label>
+              <div class="param-input-group">
+                <button
+                  class="param-btn"
+                  data-param="keySize"
+                  data-step="-1"
+                  aria-label="Decrease Key Size"
+                >
+                  -
+                </button>
+                <span id="key-size-value-results" class="param-value">9</span>
+                <button
+                  class="param-btn"
+                  data-param="keySize"
+                  data-step="1"
+                  aria-label="Increase Key Size"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="param-control">
+              <label>Batch Size</label>
+              <div class="param-input-group">
+                <button
+                  class="param-btn"
+                  data-param="batchSize"
+                  data-step="-1"
+                  aria-label="Decrease Batch Size"
+                >
+                  -
+                </button>
+                <span id="batch-size-value-results" class="param-value"
+                  >10</span
+                >
+                <button
+                  class="param-btn"
+                  data-param="batchSize"
+                  data-step="1"
+                  aria-label="Increase Batch Size"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
+          <div class="settings-toggles">
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="hard-mode-toggle-results" />
+                <span class="slider round"></span>
+              </label>
+              <label for="hard-mode-toggle-results" class="toggle-text-label"
+                >Hard Mode</label
+              >
+            </div>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="shuffle-mode-toggle-results" />
+                <span class="slider round"></span>
+              </label>
+              <label for="shuffle-mode-toggle-results" class="toggle-text-label"
+                >Shuffle Key</label
+              >
+            </div>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="memorize-mode-toggle-results" />
+                <span class="slider round"></span>
+              </label>
+              <label
+                for="memorize-mode-toggle-results"
+                class="toggle-text-label"
+                >Memorize Key</label
+              >
+            </div>
+          </div>
+
           <div class="results-buttons">
             <button id="copy-btn">Copy as Markdown</button>
             <button id="restart-btn">Play Again</button>
@@ -74,9 +259,9 @@
         <div class="modal-content">
           <h2>Paused</h2>
           <p>
-            This is an implementation of the Symbol Digit Modalities Test
-            (SDMT), a neuropsychological test of processing speed, attention,
-            and visual scanning.
+            These are variations on the Symbol Digit Modalities Test (SDMT), a
+            neuropsychological test of processing speed, attention, and visual
+            scanning. With a hidden key it also stresses working memory.
           </p>
           <p>Match the symbols as quickly and accurately as you can.</p>
           <button id="resume-btn">Resume</button>

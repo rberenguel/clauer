@@ -26,9 +26,18 @@ document.addEventListener("DOMContentLoaded", () => {
     { icon: "edit-pencil", font: "&#xe19a;" },
     { icon: "rocket", font: "&#xe3f2;" },
   ];
-  const TOTAL_ITEMS = 30;
-  const KEY_SIZE = 9;
-  const BATCH_SIZE = 10;
+
+  const PARAMS_CONFIG = {
+    totalItems: { min: 3, max: 100 },
+    keySize: { min: 2, max: 9 },
+    batchSize: { min: 3, max: 10 },
+  };
+
+  let gameParams = {
+    totalItems: 30,
+    keySize: 9,
+    batchSize: 10,
+  };
 
   let keyMap = new Map();
   let sequence = [];
@@ -40,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let totalPausedTime = 0;
   let isPaused = false;
   let isHardMode = false;
+  let isMemorizeMode = false;
+  let isShuffleMode = false;
+  let isMemorizing = false;
+  let memorizeTimer = null;
   let currentSessionStats = {};
   let allSessionsData = [];
   let itemStartTime = 0;
@@ -54,17 +67,82 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeBtn = document.getElementById("resume-btn");
   const pauseBtn = document.getElementById("pause-btn");
   const copyBtn = document.getElementById("copy-btn");
+
   const hardModeToggle = document.getElementById("hard-mode-toggle");
   const hardModeToggleResults = document.getElementById(
     "hard-mode-toggle-results",
   );
+  const memorizeModeToggle = document.getElementById("memorize-mode-toggle");
+  const memorizeModeToggleResults = document.getElementById(
+    "memorize-mode-toggle-results",
+  );
+  const shuffleModeToggle = document.getElementById("shuffle-mode-toggle");
+  const shuffleModeToggleResults = document.getElementById(
+    "shuffle-mode-toggle-results",
+  );
+
+  const keyDisplayWrapper = document.getElementById("key-display-wrapper");
   const keyDisplay = document.getElementById("key-display");
+  const keyTimerSVG = document.getElementById("key-timer");
   const numberPad = document.getElementById("number-pad");
   const sequenceDisplay = document.getElementById("sequence-display");
   const resultsTableContainer = document.getElementById(
     "results-table-container",
   );
   const iconPreviewGrid = document.getElementById("icon-preview-grid");
+
+  // --- Parameter Controls ---
+  const paramValueSpans = {
+    totalItems: [
+      document.getElementById("total-items-value"),
+      document.getElementById("total-items-value-results"),
+    ],
+    keySize: [
+      document.getElementById("key-size-value"),
+      document.getElementById("key-size-value-results"),
+    ],
+    batchSize: [
+      document.getElementById("batch-size-value"),
+      document.getElementById("batch-size-value-results"),
+    ],
+  };
+
+  function updateParameter(param, step) {
+    const config = PARAMS_CONFIG[param];
+    let currentValue = gameParams[param];
+    let newValue = currentValue + step;
+
+    // Clamp the value within the defined min/max
+    newValue = Math.max(config.min, Math.min(config.max, newValue));
+    gameParams[param] = newValue;
+
+    // Additional validation for inter-dependencies
+    const maxBatch = Math.min(
+      gameParams.totalItems,
+      PARAMS_CONFIG.batchSize.max,
+    );
+    if (gameParams.batchSize > maxBatch) {
+      gameParams.batchSize = maxBatch;
+    }
+
+    renderParamsUI();
+  }
+
+  function renderParamsUI() {
+    for (const param in gameParams) {
+      paramValueSpans[param].forEach((span) => {
+        if (span) span.textContent = gameParams[param];
+      });
+    }
+  }
+
+  document.querySelectorAll(".param-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const param = button.dataset.param;
+      const step = parseInt(button.dataset.step, 10);
+      updateParameter(param, step);
+    });
+  });
 
   if (iconPreviewGrid) {
     const randomizedIcons = [...ICONS].sort(() => 0.5 - Math.random());
@@ -78,58 +156,81 @@ document.addEventListener("DOMContentLoaded", () => {
       iconPreviewGrid.appendChild(iconWrapper);
     });
   }
+
   function generateNewKey(iconsForKey) {
     keyMap.clear();
-    const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    if (isShuffleMode) {
+      digits.sort(() => 0.5 - Math.random());
+    }
     iconsForKey.forEach((icon, i) => {
-      keyMap.set(icon.icon, digits[i]);
+      keyMap.set(icon.icon, digits.slice(0, iconsForKey.length)[i]);
     });
     renderKey();
   }
+
   function setupGame() {
     isHardMode = hardModeToggle.checked;
+    isMemorizeMode = memorizeModeToggle.checked;
+    isShuffleMode = shuffleModeToggle.checked;
     currentItemIndex = 0;
     errorCount = 0;
     totalPausedTime = 0;
     isPaused = false;
+    isMemorizing = false;
+    clearTimeout(memorizeTimer);
     sequence = [];
     keyMap.clear();
     currentSessionStats = {};
     markdownStats = "";
+
+    const { totalItems, keySize, batchSize } = gameParams;
+
     if (isHardMode) {
-      for (let i = 0; i < TOTAL_ITEMS / BATCH_SIZE; i++) {
+      const numBatches = Math.ceil(totalItems / batchSize);
+      for (let i = 0; i < numBatches; i++) {
         const keyIconsForBatch = [...ICONS]
           .sort(() => 0.5 - Math.random())
-          .slice(0, KEY_SIZE);
-        for (let j = 0; j < BATCH_SIZE; j++) {
-          sequence.push(keyIconsForBatch[Math.floor(Math.random() * KEY_SIZE)]);
+          .slice(0, keySize);
+        const itemsInThisBatch = Math.min(
+          batchSize,
+          totalItems - sequence.length,
+        );
+        for (let j = 0; j < itemsInThisBatch; j++) {
+          sequence.push(keyIconsForBatch[Math.floor(Math.random() * keySize)]);
         }
       }
-      const firstBatchIcons = [
-        ...new Set(sequence.slice(0, BATCH_SIZE).map((i) => i.icon)),
-      ].map((iconName) => ICONS.find((i) => i.icon === iconName));
-      generateNewKey(firstBatchIcons);
     } else {
       const keyIcons = [...ICONS]
         .sort(() => 0.5 - Math.random())
-        .slice(0, KEY_SIZE);
+        .slice(0, keySize);
       generateNewKey(keyIcons);
-      for (let i = 0; i < TOTAL_ITEMS; i++) {
-        sequence.push(keyIcons[Math.floor(Math.random() * KEY_SIZE)]);
+      for (let i = 0; i < totalItems; i++) {
+        sequence.push(keyIcons[Math.floor(Math.random() * keySize)]);
       }
     }
+
+    const firstBatchIcons = [
+      ...new Set(sequence.slice(0, batchSize).map((i) => i.icon)),
+    ].map((iconName) => ICONS.find((i) => i.icon === iconName));
+    generateNewKey(firstBatchIcons);
+
     renderSequenceBatch();
     renderNumberPad();
   }
+
   function renderKey() {
     keyDisplay.innerHTML = "";
-    keyMap.forEach((digit, icon) => {
+    keyDisplay.style.gridTemplateColumns = `repeat(${Math.min(gameParams.keySize, 5)}, 1fr)`;
+    keyMap.forEach((digit, iconName) => {
+      const iconData = ICONS.find((i) => i.icon === iconName);
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir iconoir-${icon}"></span><span class="icon-value">${digit}</span>`;
+      item.innerHTML = `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span><span class="icon-value">${digit}</span>`;
       keyDisplay.appendChild(item);
     });
   }
+
   function renderNumberPad() {
     numberPad.innerHTML = "";
     const keypadOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -140,32 +241,76 @@ document.addEventListener("DOMContentLoaded", () => {
       numberPad.appendChild(button);
     });
   }
+
   function renderSequenceBatch() {
+    const { batchSize } = gameParams;
     sequenceDisplay.innerHTML = "";
-    const start = Math.floor(currentItemIndex / BATCH_SIZE) * BATCH_SIZE;
-    const end = start + BATCH_SIZE;
+    sequenceDisplay.style.gridTemplateColumns = `repeat(${Math.min(batchSize, 5)}, 1fr)`;
+    const start = Math.floor(currentItemIndex / batchSize) * batchSize;
+    const end = start + batchSize;
     const batch = sequence.slice(start, end);
-    batch.forEach((icon) => {
+    batch.forEach((iconData) => {
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir iconoir-${icon.icon}"></span>`;
+      item.innerHTML = `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span>`;
       sequenceDisplay.appendChild(item);
     });
     highlightCurrentItem();
   }
+
+  function showKeyWithTimer() {
+    isMemorizing = true;
+    keyDisplay.classList.remove("hidden-by-memorize");
+    keyTimerSVG.classList.remove("hidden");
+
+    const rect = keyTimerSVG.querySelector("rect");
+
+    requestAnimationFrame(() => {
+      const width = keyDisplayWrapper.clientWidth;
+      const height = keyDisplayWrapper.clientHeight;
+      if (width === 0 || height === 0) {
+        return;
+      }
+      const perimeter = 2 * (width + height);
+      rect.style.transition = "none";
+      rect.style.strokeDasharray = perimeter;
+      rect.style.strokeDashoffset = 0;
+      void rect.offsetWidth;
+      rect.style.transition = "stroke-dashoffset 9s linear";
+      rect.style.strokeDashoffset = perimeter;
+    });
+
+    clearTimeout(memorizeTimer);
+    memorizeTimer = setTimeout(() => {
+      keyDisplay.classList.add("hidden-by-memorize");
+      keyTimerSVG.classList.add("hidden");
+      isMemorizing = false;
+      highlightCurrentItem();
+      if (rect) {
+        rect.style.transition = "none";
+      }
+    }, 9000);
+  }
+
   function highlightCurrentItem() {
+    if (isMemorizing) return;
     document
       .querySelectorAll("#sequence-display .grid-item")
       .forEach((el) => el.classList.remove("current-item"));
-    const sequenceIndexInBatch = currentItemIndex % BATCH_SIZE;
+
+    if (currentItemIndex >= gameParams.totalItems) return;
+
+    const sequenceIndexInBatch = currentItemIndex % gameParams.batchSize;
     const currentElement = sequenceDisplay.children[sequenceIndexInBatch];
     if (currentElement) {
       currentElement.classList.add("current-item");
       itemStartTime = performance.now();
     }
   }
+
   function handleNumberPress(digit) {
-    if (!gameActive || isPaused) return;
+    if (!gameActive || isPaused || isMemorizing) return;
+    const { totalItems, batchSize } = gameParams;
     const timeTaken = performance.now() - itemStartTime;
     const iconName = sequence[currentItemIndex].icon;
     if (!currentSessionStats[iconName]) {
@@ -174,28 +319,40 @@ document.addEventListener("DOMContentLoaded", () => {
     currentSessionStats[iconName].attempts++;
     const correctDigit = keyMap.get(sequence[currentItemIndex].icon);
     const currentElement =
-      sequenceDisplay.children[currentItemIndex % BATCH_SIZE];
+      sequenceDisplay.children[currentItemIndex % batchSize];
     if (digit === correctDigit) {
       currentSessionStats[iconName].correct++;
       currentSessionStats[iconName].totalTime += timeTaken;
       currentElement.classList.add("correct-answer");
       setTimeout(() => currentElement.classList.remove("correct-answer"), 500);
       currentItemIndex++;
-      if (currentItemIndex >= TOTAL_ITEMS) {
+      if (currentItemIndex >= totalItems) {
         endGame();
         return;
       }
-      if (currentItemIndex % BATCH_SIZE === 0) {
+      if (currentItemIndex > 0 && currentItemIndex % batchSize === 0) {
+        let keyChanged = false;
         if (isHardMode) {
           const currentBatchStart = currentItemIndex;
           const nextBatchIcons = [
             ...new Set(
               sequence
-                .slice(currentBatchStart, currentBatchStart + BATCH_SIZE)
+                .slice(currentBatchStart, currentBatchStart + batchSize)
                 .map((i) => i.icon),
             ),
           ].map((iconName) => ICONS.find((i) => i.icon === iconName));
           generateNewKey(nextBatchIcons);
+          keyChanged = true;
+        } else if (isShuffleMode) {
+          const currentIcons = Array.from(keyMap.keys()).map((iconName) =>
+            ICONS.find((i) => i.icon === iconName),
+          );
+          generateNewKey(currentIcons);
+          keyChanged = true;
+        }
+
+        if (keyChanged && isMemorizeMode) {
+          showKeyWithTimer();
         }
         renderSequenceBatch();
       } else {
@@ -207,6 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => currentElement.classList.remove("shake"), 500);
     }
   }
+
   function startGame() {
     setupGame();
     gameActive = true;
@@ -216,13 +374,35 @@ document.addEventListener("DOMContentLoaded", () => {
     gameScreen.classList.remove("hidden");
     pauseModal.classList.remove("visible");
     copyBtn.textContent = "Copy as Markdown";
+
+    if (isMemorizeMode) {
+      showKeyWithTimer();
+    } else {
+      keyDisplay.classList.remove("hidden-by-memorize");
+      keyTimerSVG.classList.add("hidden");
+    }
   }
+
   function endGame() {
     gameActive = false;
     hardModeToggleResults.checked = hardModeToggle.checked;
+    memorizeModeToggleResults.checked = memorizeModeToggle.checked;
+    shuffleModeToggleResults.checked = shuffleModeToggle.checked;
+
+    const activeModes = [];
+    if (isHardMode) activeModes.push("Hard");
+    if (isShuffleMode) activeModes.push("Shuffle");
+    if (isMemorizeMode) activeModes.push("Memorize");
+
+    let mode = activeModes.join(" / ");
+    if (mode === "") mode = "Normal";
+
+    const config = `${gameParams.keySize}@${gameParams.batchSize}/${gameParams.totalItems}`;
+
     allSessionsData.push({
       stats: currentSessionStats,
-      mode: isHardMode ? "Hard" : "Normal",
+      mode: mode,
+      config: config,
       errors: errorCount,
       time: (performance.now() - startTime - totalPausedTime) / 1000,
     });
@@ -232,6 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gameScreen.classList.add("hidden");
     resultsScreen.classList.remove("hidden");
   }
+
   function generateStatsReport() {
     let html =
       '<table class="results-table"><thead><tr><th>Stat</th><th>Atts</th><th>%</th><th>AvgT(s)</th></tr></thead><tbody>';
@@ -249,15 +430,21 @@ document.addEventListener("DOMContentLoaded", () => {
         avgT: avgTime.toFixed(2),
       };
     };
-    const addRow = (ctx, label, stat, style) => {
+    const addRow = (ctx, label, stat, style, config) => {
       const { atts, success, avgT } = calc(stat);
+      const iconData = ICONS.find((i) => i.icon === label);
+      const iconHtml = iconData
+        ? `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span>`
+        : "";
+      const configHtml = config ? ` <small>(${config})</small>` : "";
+
       const labelHtml = {
-        header: `<td colspan="4">${label}</td>`,
+        header: `<td colspan="4">${label}${configHtml}</td>`,
         main: `<td><strong>${label}</strong></td><td>${atts}</td><td>${success}</td><td>${avgT}</td>`,
-        sub: `<td><span class="iconoir iconoir-${label}"></span>${label}</td><td>${atts}</td><td>${success}</td><td>${avgT}</td>`,
+        sub: `<td>${iconHtml}${label}</td><td>${atts}</td><td>${success}</td><td>${avgT}</td>`,
       };
       const labelMd = {
-        header: `| **${label}** | | | |\n`,
+        header: `| **${label}** ${config ? `(${config})` : ""} | | | |\n`,
         main: `| **${label}** | ${atts} | ${success} | ${avgT} |\n`,
         sub: `|  ↳ ${label} | ${atts} | ${success} | ${avgT} |\n`,
       };
@@ -270,9 +457,10 @@ document.addEventListener("DOMContentLoaded", () => {
     allSessionsData.forEach((session, i) => {
       addRow(
         reportContext,
-        `Session ${i + 1} (${session.mode} Mode)`,
+        `Session ${i + 1} (${session.mode})`,
         null,
         "header",
+        session.config,
       );
       const sessionOverall = { attempts: 0, correct: 0, totalTime: 0 };
       const sortedIcons = Object.keys(session.stats).sort();
@@ -315,11 +503,15 @@ document.addEventListener("DOMContentLoaded", () => {
     reportContext.html += "</tbody></table>";
     const finalTime = allSessionsData.reduce((acc, s) => acc + s.time, 0);
     const finalErrors = allSessionsData.reduce((acc, s) => acc + s.errors, 0);
-    const finalItems = allSessionsData.length * TOTAL_ITEMS;
-    const finalAccuracy = (
-      ((finalItems - finalErrors) / finalItems) *
-      100
-    ).toFixed(1);
+    const finalItems = allSessionsData.reduce(
+      (acc, s) => acc + parseInt(s.config.split("/")[1], 10),
+      0,
+    );
+    const finalAccuracy =
+      finalItems > 0
+        ? (((finalItems - finalErrors) / finalItems) * 100).toFixed(1)
+        : 0;
+
     document.getElementById("time-result").textContent =
       `Total Time: ${finalTime.toFixed(2)}s`;
     document.getElementById("accuracy-result").textContent =
@@ -327,6 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return reportContext;
   }
+
   function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
@@ -351,25 +544,42 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.removeChild(textArea);
     }
   }
+
   function pauseGame() {
     if (!gameActive || isPaused) return;
     isPaused = true;
     pauseTime = performance.now();
     pauseModal.classList.add("visible");
   }
+
   function resumeGame() {
     if (!gameActive || !isPaused) return;
     totalPausedTime += performance.now() - pauseTime;
     isPaused = false;
     pauseModal.classList.remove("visible");
+    highlightCurrentItem();
   }
 
+  // --- Sync Toggles ---
   hardModeToggle.addEventListener("change", () => {
     hardModeToggleResults.checked = hardModeToggle.checked;
   });
   hardModeToggleResults.addEventListener("change", () => {
     hardModeToggle.checked = hardModeToggleResults.checked;
   });
+  memorizeModeToggle.addEventListener("change", () => {
+    memorizeModeToggleResults.checked = memorizeModeToggle.checked;
+  });
+  memorizeModeToggleResults.addEventListener("change", () => {
+    memorizeModeToggle.checked = memorizeModeToggleResults.checked;
+  });
+  shuffleModeToggle.addEventListener("change", () => {
+    shuffleModeToggleResults.checked = shuffleModeToggle.checked;
+  });
+  shuffleModeToggleResults.addEventListener("change", () => {
+    shuffleModeToggle.checked = shuffleModeToggleResults.checked;
+  });
+
   startBtn.addEventListener("click", () => {
     allSessionsData = [];
     startGame();
@@ -378,4 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
   resumeBtn.addEventListener("click", resumeGame);
   pauseBtn.addEventListener("click", pauseGame);
   copyBtn.addEventListener("click", () => copyToClipboard(markdownStats));
+
+  // Initialize parameter controls
+  renderParamsUI();
 });
