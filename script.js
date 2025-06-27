@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const iconData = ICONS.find((i) => i.icon === iconName);
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span><span class="icon-value">${digit}</span>`;
+      item.innerHTML = `<span class="iconoir iconoir-${iconData.icon}"></span><span class="icon-value">${digit}</span>`;
       keyDisplay.appendChild(item);
     });
   }
@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
     batch.forEach((iconData) => {
       const item = document.createElement("div");
       item.className = "grid-item";
-      item.innerHTML = `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span>`;
+      item.innerHTML = `<span class="iconoir iconoir-${iconData.icon}"></span>`;
       sequenceDisplay.appendChild(item);
     });
     highlightCurrentItem();
@@ -309,34 +309,36 @@ document.addEventListener("DOMContentLoaded", () => {
     isMemorizing = true;
     keyDisplay.classList.remove("hidden-by-memorize");
     keyTimerSVG.classList.remove("hidden");
+    setTimeout(() => {
+      const rect = keyTimerSVG.querySelector("rect");
 
-    const rect = keyTimerSVG.querySelector("rect");
-
-    requestAnimationFrame(() => {
-      const width = keyDisplayWrapper.clientWidth;
-      const height = keyDisplayWrapper.clientHeight;
-      if (width === 0 || height === 0) {
-        return;
-      }
-      const perimeter = 2 * (width + height);
-      rect.style.transition = "none";
-      rect.style.strokeDasharray = perimeter;
-      rect.style.strokeDashoffset = 0;
-      void rect.offsetWidth;
-      rect.style.transition = "stroke-dashoffset 9s linear";
-      rect.style.strokeDashoffset = perimeter;
-    });
-
-    clearTimeout(memorizeTimer);
-    memorizeTimer = setTimeout(() => {
-      keyDisplay.classList.add("hidden-by-memorize");
-      keyTimerSVG.classList.add("hidden");
-      isMemorizing = false;
-      highlightCurrentItem();
-      if (rect) {
+      requestAnimationFrame(() => {
+        const width = keyDisplayWrapper.clientWidth;
+        const height = keyDisplayWrapper.clientHeight;
+        if (width === 0 || height === 0) {
+          return;
+        }
+        const perimeter = 2 * (width + height);
         rect.style.transition = "none";
-      }
-    }, 9000);
+        rect.style.strokeDasharray = perimeter;
+        rect.style.strokeDashoffset = 0;
+        void rect.offsetWidth;
+        rect.style.transition = "stroke-dashoffset 9s linear";
+        rect.style.strokeDashoffset = perimeter;
+      });
+
+      clearTimeout(memorizeTimer);
+      memorizeTimer = setTimeout(() => {
+        keyDisplay.classList.add("hidden-by-memorize");
+        keyTimerSVG.classList.add("hidden");
+        isMemorizing = false;
+        highlightCurrentItem();
+        if (rect) {
+          rect.style.transition = "none";
+          rect.style.strokeDashoffset = "0";
+        }
+      }, 9000);
+    }, 10);
   }
 
   function highlightCurrentItem() {
@@ -483,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const { atts, success, avgT } = calc(stat);
       const iconData = ICONS.find((i) => i.icon === label);
       const iconHtml = iconData
-        ? `<span class="iconoir" style="font-family: iconoir;">${iconData.font}</span>`
+        ? `<span class="iconoir iconoir-${iconData.icon}"></span>`
         : "";
       const configHtml = config ? ` <small>(${config})</small>` : "";
 
