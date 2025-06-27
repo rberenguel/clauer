@@ -198,8 +198,26 @@ button {
   color: var(--text);
   min-width: 40px;
   text-align: center;
+  background-color: transparent;
+  border: none;
+  font-family: inherit;
+  padding: 0 5px;
+  width: 50px;
+  cursor: pointer;
 }
-
+.param-value:focus {
+  outline: none;
+  background-color: var(--background);
+  cursor: text;
+}
+.param-value::-webkit-outer-spin-button,
+.param-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.param-value[type="number"] {
+  -moz-appearance: textfield;
+}
 .settings-toggles {
   display: flex;
   justify-content: center;

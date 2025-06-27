@@ -1,3 +1,21 @@
+async function fetchSelfManifest() {
+  try {
+    const response = await fetch("./manifest.json"); // Assumes style.css is in the same directory as index.html
+    if (response.ok) {
+      let loadedManifest = await response.text();
+      let version = JSON.parse(loadedManifest).version;
+      Array.from(document.querySelectorAll(".with-version")).map(
+        (e) => (e.innerHTML = e.innerHTML.replace("{{version}}", version)),
+      );
+      console.log("Version fetched.");
+    } else {
+      console.warn("Failed to fetch manifest", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error fetching manifest: ", error);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const ICONS = [
     { icon: "birthday-cake", font: "&#xe088;" },
@@ -92,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const iconPreviewGrid = document.getElementById("icon-preview-grid");
 
   // --- Parameter Controls ---
-  const paramValueSpans = {
+  const paramValueInputs = {
     totalItems: [
       document.getElementById("total-items-value"),
       document.getElementById("total-items-value-results"),
@@ -107,16 +125,18 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
-  function updateParameter(param, step) {
+  function setParameter(param, value) {
+    let newValue = parseInt(value, 10);
     const config = PARAMS_CONFIG[param];
-    let currentValue = gameParams[param];
-    let newValue = currentValue + step;
 
-    // Clamp the value within the defined min/max
+    if (isNaN(newValue)) {
+      renderParamsUI();
+      return;
+    }
+
     newValue = Math.max(config.min, Math.min(config.max, newValue));
     gameParams[param] = newValue;
 
-    // Additional validation for inter-dependencies
     const maxBatch = Math.min(
       gameParams.totalItems,
       PARAMS_CONFIG.batchSize.max,
@@ -128,10 +148,15 @@ document.addEventListener("DOMContentLoaded", () => {
     renderParamsUI();
   }
 
+  function updateParameter(param, step) {
+    const currentValue = gameParams[param];
+    setParameter(param, currentValue + step);
+  }
+
   function renderParamsUI() {
     for (const param in gameParams) {
-      paramValueSpans[param].forEach((span) => {
-        if (span) span.textContent = gameParams[param];
+      paramValueInputs[param].forEach((input) => {
+        if (input) input.value = gameParams[param];
       });
     }
   }
@@ -143,6 +168,25 @@ document.addEventListener("DOMContentLoaded", () => {
       updateParameter(param, step);
     });
   });
+
+  for (const param in paramValueInputs) {
+    paramValueInputs[param].forEach((input) => {
+      if (input) {
+        input.addEventListener("change", (e) => {
+          setParameter(param, e.target.value);
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            renderParamsUI();
+            input.blur();
+          } else if (e.key === "Enter") {
+            setParameter(param, e.target.value);
+            input.blur();
+          }
+        });
+      }
+    });
+  }
 
   if (iconPreviewGrid) {
     const randomizedIcons = [...ICONS].sort(() => 0.5 - Math.random());
@@ -200,6 +244,10 @@ document.addEventListener("DOMContentLoaded", () => {
           sequence.push(keyIconsForBatch[Math.floor(Math.random() * keySize)]);
         }
       }
+      const firstBatchIcons = [
+        ...new Set(sequence.slice(0, batchSize).map((i) => i.icon)),
+      ].map((iconName) => ICONS.find((i) => i.icon === iconName));
+      generateNewKey(firstBatchIcons);
     } else {
       const keyIcons = [...ICONS]
         .sort(() => 0.5 - Math.random())
@@ -209,11 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
         sequence.push(keyIcons[Math.floor(Math.random() * keySize)]);
       }
     }
-
-    const firstBatchIcons = [
-      ...new Set(sequence.slice(0, batchSize).map((i) => i.icon)),
-    ].map((iconName) => ICONS.find((i) => i.icon === iconName));
-    generateNewKey(firstBatchIcons);
 
     renderSequenceBatch();
     renderNumberPad();
@@ -388,6 +431,8 @@ document.addEventListener("DOMContentLoaded", () => {
     hardModeToggleResults.checked = hardModeToggle.checked;
     memorizeModeToggleResults.checked = memorizeModeToggle.checked;
     shuffleModeToggleResults.checked = shuffleModeToggle.checked;
+
+    renderParamsUI();
 
     const activeModes = [];
     if (isHardMode) activeModes.push("Hard");
@@ -590,5 +635,6 @@ document.addEventListener("DOMContentLoaded", () => {
   copyBtn.addEventListener("click", () => copyToClipboard(markdownStats));
 
   // Initialize parameter controls
+  fetchSelfManifest();
   renderParamsUI();
 });

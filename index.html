@@ -32,7 +32,13 @@
               >
                 -
               </button>
-              <span id="total-items-value" class="param-value">30</span>
+              <input
+                type="number"
+                inputmode="numeric"
+                id="total-items-value"
+                class="param-value"
+                data-param="totalItems"
+              />
               <button
                 class="param-btn"
                 data-param="totalItems"
@@ -54,7 +60,13 @@
               >
                 -
               </button>
-              <span id="key-size-value" class="param-value">9</span>
+              <input
+                type="number"
+                inputmode="numeric"
+                id="key-size-value"
+                class="param-value"
+                data-param="keySize"
+              />
               <button
                 class="param-btn"
                 data-param="keySize"
@@ -76,7 +88,13 @@
               >
                 -
               </button>
-              <span id="batch-size-value" class="param-value">10</span>
+              <input
+                type="number"
+                inputmode="numeric"
+                id="batch-size-value"
+                class="param-value"
+                data-param="batchSize"
+              />
               <button
                 class="param-btn"
                 data-param="batchSize"
@@ -154,9 +172,13 @@
                 >
                   -
                 </button>
-                <span id="total-items-value-results" class="param-value"
-                  >30</span
-                >
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="total-items-value-results"
+                  class="param-value"
+                  data-param="totalItems"
+                />
                 <button
                   class="param-btn"
                   data-param="totalItems"
@@ -178,7 +200,13 @@
                 >
                   -
                 </button>
-                <span id="key-size-value-results" class="param-value">9</span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="key-size-value-results"
+                  class="param-value"
+                  data-param="keySize"
+                />
                 <button
                   class="param-btn"
                   data-param="keySize"
@@ -200,9 +228,13 @@
                 >
                   -
                 </button>
-                <span id="batch-size-value-results" class="param-value"
-                  >10</span
-                >
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  id="batch-size-value-results"
+                  class="param-value"
+                  data-param="batchSize"
+                />
                 <button
                   class="param-btn"
                   data-param="batchSize"
@@ -257,7 +289,8 @@
 
       <div id="pause-modal" class="modal-overlay">
         <div class="modal-content">
-          <h2>Paused</h2>
+          <h2 class="with-version">Clauer {{version}}</h2>
+          <h3>Paused</h3>
           <p>
             These are variations on the Symbol Digit Modalities Test (SDMT), a
             neuropsychological test of processing speed, attention, and visual
@@ -269,5 +302,24 @@
       </div>
     </div>
     <script src="script.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("./sw.js").then(
+            function (registration) {
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope,
+              );
+            },
+            function (err) {
+              console.log("ServiceWorker registration failed: ", err);
+            },
+          );
+        });
+      } else {
+        console.info("Service workers not available on this device");
+      }
+    </script>
   </body>
 </html>
