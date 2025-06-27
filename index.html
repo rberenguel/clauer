@@ -19,7 +19,10 @@
     <div id="app">
       <div id="start-screen">
         <div id="icon-preview-grid" class="preview-grid-gradient"></div>
-        <button id="start-btn">Start</button>
+        <div class="start-buttons-container">
+          <button id="start-btn">Start</button>
+          <button id="help-btn" aria-label="Help">?</button>
+        </div>
         <div class="game-parameters">
           <div class="param-control">
             <label>Total Items</label>
@@ -291,13 +294,21 @@
         <div class="modal-content">
           <h2 class="with-version">Clauer {{version}}</h2>
           <h3>Paused</h3>
+          <div id="pause-game-details"></div>
+          <button id="resume-btn">Resume</button>
+        </div>
+      </div>
+
+      <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 class="with-version">Clauer {{version}}</h2>
           <p>
             These are variations on the Symbol Digit Modalities Test (SDMT), a
             neuropsychological test of processing speed, attention, and visual
             scanning. With a hidden key it also stresses working memory.
           </p>
           <p>Match the symbols as quickly and accurately as you can.</p>
-          <button id="resume-btn">Resume</button>
+          <button id="close-help-btn">Close</button>
         </div>
       </div>
     </div>

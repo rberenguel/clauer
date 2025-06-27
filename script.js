@@ -80,11 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameScreen = document.getElementById("game-screen");
   const resultsScreen = document.getElementById("results-screen");
   const pauseModal = document.getElementById("pause-modal");
+  const helpModal = document.getElementById("help-modal");
   const startBtn = document.getElementById("start-btn");
+  const helpBtn = document.getElementById("help-btn");
+  const closeHelpBtn = document.getElementById("close-help-btn");
   const restartBtn = document.getElementById("restart-btn");
   const resumeBtn = document.getElementById("resume-btn");
   const pauseBtn = document.getElementById("pause-btn");
   const copyBtn = document.getElementById("copy-btn");
+  const pauseGameDetails = document.getElementById("pause-game-details");
 
   const hardModeToggle = document.getElementById("hard-mode-toggle");
   const hardModeToggleResults = document.getElementById(
@@ -594,6 +598,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!gameActive || isPaused) return;
     isPaused = true;
     pauseTime = performance.now();
+
+    const activeModes = [];
+    if (isHardMode) activeModes.push("Hard");
+    if (isShuffleMode) activeModes.push("Shuffle");
+    if (isMemorizeMode) activeModes.push("Memorize");
+    let mode = activeModes.join(" / ");
+    if (mode === "") mode = "Normal";
+
+    pauseGameDetails.innerHTML = `
+      <div class="detail-label">Mode:</div><div class="detail-value">${mode}</div>
+      <div class="detail-label">Total Items:</div><div class="detail-value">${gameParams.totalItems}</div>
+      <div class="detail-label">Key Size:</div><div class="detail-value">${gameParams.keySize}</div>
+      <div class="detail-label">Batch Size:</div><div class="detail-value">${gameParams.batchSize}</div>
+    `;
+
     pauseModal.classList.add("visible");
   }
 
@@ -633,8 +652,24 @@ document.addEventListener("DOMContentLoaded", () => {
   resumeBtn.addEventListener("click", resumeGame);
   pauseBtn.addEventListener("click", pauseGame);
   copyBtn.addEventListener("click", () => copyToClipboard(markdownStats));
+  helpBtn.addEventListener("click", () => {
+    helpModal.classList.add("visible");
+  });
+  closeHelpBtn.addEventListener("click", () => {
+    helpModal.classList.remove("visible");
+  });
+  helpModal.addEventListener("click", (e) => {
+    if (e.target === helpModal) {
+      helpModal.classList.remove("visible");
+    }
+  });
+  pauseModal.addEventListener("click", (e) => {
+    if (e.target === pauseModal) {
+      resumeGame();
+    }
+  });
 
-  // Initialize parameter controls
+  // Initialize
   fetchSelfManifest();
   renderParamsUI();
 });
