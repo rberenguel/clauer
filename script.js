@@ -1,3 +1,5 @@
+import { initHaptic, triggerHaptic, triggerHapticError } from "./haptic.js";
+
 async function fetchSelfManifest() {
   try {
     const response = await fetch("./manifest.json"); // Assumes style.css is in the same directory as index.html
@@ -17,6 +19,7 @@ async function fetchSelfManifest() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initHaptic();
   const ICONS = [
     { icon: "birthday-cake", font: "&#xe088;" },
     { icon: "book", font: "&#xe094;" },
@@ -135,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isNaN(newValue)) {
       renderParamsUI();
-      return;
+      return true;
     }
 
     newValue = Math.max(config.min, Math.min(config.max, newValue));
@@ -150,11 +153,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderParamsUI();
+    return newValue != value;
   }
 
   function updateParameter(param, step) {
     const currentValue = gameParams[param];
-    setParameter(param, currentValue + step);
+    return setParameter(param, currentValue + step);
   }
 
   function renderParamsUI() {
@@ -169,7 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => {
       const param = button.dataset.param;
       const step = parseInt(button.dataset.step, 10);
-      updateParameter(param, step);
+      const returned = updateParameter(param, step);
+      if (returned) {
+        triggerHapticError();
+      } else {
+        triggerHaptic();
+      }
     });
   });
 
@@ -370,6 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentElement =
       sequenceDisplay.children[currentItemIndex % batchSize];
     if (digit === correctDigit) {
+      triggerHaptic();
       currentSessionStats[iconName].correct++;
       currentSessionStats[iconName].totalTime += timeTaken;
       currentElement.classList.add("correct-answer");
@@ -410,6 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       errorCount++;
       currentElement.classList.add("shake");
+      triggerHapticError();
       setTimeout(() => currentElement.classList.remove("shake"), 500);
     }
   }
@@ -647,26 +658,40 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   startBtn.addEventListener("click", () => {
+    triggerHaptic();
     allSessionsData = [];
     startGame();
   });
-  restartBtn.addEventListener("click", startGame);
-  resumeBtn.addEventListener("click", resumeGame);
-  pauseBtn.addEventListener("click", pauseGame);
+  restartBtn.addEventListener("click", () => {
+    triggerHaptic();
+    startGame();
+  });
+  resumeBtn.addEventListener("click", () => {
+    triggerHaptic();
+    resumeGame();
+  });
+  pauseBtn.addEventListener("click", () => {
+    triggerHaptic();
+    pauseGame();
+  });
   copyBtn.addEventListener("click", () => copyToClipboard(markdownStats));
   helpBtn.addEventListener("click", () => {
+    triggerHaptic();
     helpModal.classList.add("visible");
   });
   closeHelpBtn.addEventListener("click", () => {
+    triggerHaptic();
     helpModal.classList.remove("visible");
   });
   helpModal.addEventListener("click", (e) => {
     if (e.target === helpModal) {
+      triggerHaptic();
       helpModal.classList.remove("visible");
     }
   });
   pauseModal.addEventListener("click", (e) => {
     if (e.target === pauseModal) {
+      triggerHaptic();
       resumeGame();
     }
   });

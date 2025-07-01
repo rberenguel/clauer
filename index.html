@@ -113,7 +113,7 @@
         <div class="settings-toggles">
           <div class="toggle-container">
             <label class="toggle-switch">
-              <input type="checkbox" id="hard-mode-toggle" />
+              <input type="checkbox" switch id="hard-mode-toggle" />
               <span class="slider round"></span>
             </label>
             <label for="hard-mode-toggle" class="toggle-text-label"
@@ -122,7 +122,7 @@
           </div>
           <div class="toggle-container">
             <label class="toggle-switch">
-              <input type="checkbox" id="shuffle-mode-toggle" />
+              <input type="checkbox" switch id="shuffle-mode-toggle" />
               <span class="slider round"></span>
             </label>
             <label for="shuffle-mode-toggle" class="toggle-text-label"
@@ -131,7 +131,7 @@
           </div>
           <div class="toggle-container">
             <label class="toggle-switch">
-              <input type="checkbox" id="memorize-mode-toggle" />
+              <input type="checkbox" switch id="memorize-mode-toggle" />
               <span class="slider round"></span>
             </label>
             <label for="memorize-mode-toggle" class="toggle-text-label"
@@ -252,7 +252,7 @@
           <div class="settings-toggles">
             <div class="toggle-container">
               <label class="toggle-switch">
-                <input type="checkbox" id="hard-mode-toggle-results" />
+                <input type="checkbox" switch id="hard-mode-toggle-results" />
                 <span class="slider round"></span>
               </label>
               <label for="hard-mode-toggle-results" class="toggle-text-label"
@@ -261,7 +261,11 @@
             </div>
             <div class="toggle-container">
               <label class="toggle-switch">
-                <input type="checkbox" id="shuffle-mode-toggle-results" />
+                <input
+                  type="checkbox"
+                  switch
+                  id="shuffle-mode-toggle-results"
+                />
                 <span class="slider round"></span>
               </label>
               <label for="shuffle-mode-toggle-results" class="toggle-text-label"
@@ -270,7 +274,11 @@
             </div>
             <div class="toggle-container">
               <label class="toggle-switch">
-                <input type="checkbox" id="memorize-mode-toggle-results" />
+                <input
+                  type="checkbox"
+                  switch
+                  id="memorize-mode-toggle-results"
+                />
                 <span class="slider round"></span>
               </label>
               <label
@@ -312,7 +320,7 @@
         </div>
       </div>
     </div>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
