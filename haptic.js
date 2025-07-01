@@ -49,9 +49,9 @@ export function initHaptic() {
 
 /**
  * Triggers haptic feedback.
- * @param {number} [duration=100] - Vibration duration in ms for non-iOS devices.
+ * @param {number} [duration=10] - Vibration duration in ms for non-iOS devices.
  */
-export function triggerHaptic(duration = 100) {
+export function triggerHaptic(duration = 10) {
   if (!hapticLabel) {
     console.warn("Haptic feedback not initialized. Call initHaptic() first.");
     return;
@@ -67,7 +67,11 @@ export function triggerHaptic(duration = 100) {
 }
 
 export function triggerHapticError() {
-  triggerHaptic();
-  setTimeout(() => triggerHaptic(), 120);
-  setTimeout(() => triggerHaptic(), 240);
+  if (navigator.vibrate) {
+    navigator.vibrate([10, 50, 10]);
+  } else {
+    triggerHaptic();
+    setTimeout(() => triggerHaptic(), 120);
+    setTimeout(() => triggerHaptic(), 240);
+  }
 }

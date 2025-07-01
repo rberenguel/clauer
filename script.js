@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".param-btn").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("touchend", () => {
       const param = button.dataset.param;
       const step = parseInt(button.dataset.step, 10);
       const returned = updateParameter(param, step);
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     keypadOrder.forEach((digit) => {
       const button = document.createElement("button");
       button.textContent = digit;
-      button.addEventListener("click", () => handleNumberPress(digit));
+      button.addEventListener("touchend", () => handleNumberPress(digit));
       numberPad.appendChild(button);
     });
   }
@@ -657,39 +657,39 @@ document.addEventListener("DOMContentLoaded", () => {
     shuffleModeToggle.checked = shuffleModeToggleResults.checked;
   });
 
-  startBtn.addEventListener("click", () => {
+  startBtn.addEventListener("touchend", () => {
     triggerHaptic();
     allSessionsData = [];
     startGame();
   });
-  restartBtn.addEventListener("click", () => {
+  restartBtn.addEventListener("touchend", () => {
     triggerHaptic();
     startGame();
   });
-  resumeBtn.addEventListener("click", () => {
+  resumeBtn.addEventListener("touchend", () => {
     triggerHaptic();
     resumeGame();
   });
-  pauseBtn.addEventListener("click", () => {
+  pauseBtn.addEventListener("touchend", () => {
     triggerHaptic();
     pauseGame();
   });
-  copyBtn.addEventListener("click", () => copyToClipboard(markdownStats));
-  helpBtn.addEventListener("click", () => {
+  copyBtn.addEventListener("touchend", () => copyToClipboard(markdownStats));
+  helpBtn.addEventListener("touchend", () => {
     triggerHaptic();
     helpModal.classList.add("visible");
   });
-  closeHelpBtn.addEventListener("click", () => {
+  closeHelpBtn.addEventListener("touchend", () => {
     triggerHaptic();
     helpModal.classList.remove("visible");
   });
-  helpModal.addEventListener("click", (e) => {
+  helpModal.addEventListener("touchend", (e) => {
     if (e.target === helpModal) {
       triggerHaptic();
       helpModal.classList.remove("visible");
     }
   });
-  pauseModal.addEventListener("click", (e) => {
+  pauseModal.addEventListener("touchend", (e) => {
     if (e.target === pauseModal) {
       triggerHaptic();
       resumeGame();
