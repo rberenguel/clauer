@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let memorizeTimer = null;
   let currentSessionStats = {};
   let allSessionsData = [];
+  let batchKeys = [];
   let itemStartTime = 0;
   let markdownStats = "";
 
@@ -170,16 +171,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".param-btn").forEach((button) => {
-    button.addEventListener("touchend", () => {
-      const param = button.dataset.param;
-      const step = parseInt(button.dataset.step, 10);
-      const returned = updateParameter(param, step);
-      if (returned) {
-        triggerHapticError();
-      } else {
-        triggerHaptic();
-      }
-    });
+    for (let ev of ["touchend", "pointerup"]) {
+      button.addEventListener(ev, () => {
+        const param = button.dataset.param;
+        const step = parseInt(button.dataset.step, 10);
+        const returned = updateParameter(param, step);
+        if (returned) {
+          triggerHapticError();
+        } else {
+          triggerHaptic();
+        }
+      });
+    }
   });
 
   for (const param in paramValueInputs) {
@@ -245,10 +248,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isHardMode) {
       const numBatches = Math.ceil(totalItems / batchSize);
+      batchKeys = []; // Clear previous game's keys
       for (let i = 0; i < numBatches; i++) {
+        // 1. Generate and store a key of the correct size for the batch
         const keyIconsForBatch = [...ICONS]
           .sort(() => 0.5 - Math.random())
           .slice(0, keySize);
+        batchKeys.push(keyIconsForBatch);
+
+        // 2. Generate the sequence for this batch using the key we just made
         const itemsInThisBatch = Math.min(
           batchSize,
           totalItems - sequence.length,
@@ -257,10 +265,8 @@ document.addEventListener("DOMContentLoaded", () => {
           sequence.push(keyIconsForBatch[Math.floor(Math.random() * keySize)]);
         }
       }
-      const firstBatchIcons = [
-        ...new Set(sequence.slice(0, batchSize).map((i) => i.icon)),
-      ].map((iconName) => ICONS.find((i) => i.icon === iconName));
-      generateNewKey(firstBatchIcons);
+      // 3. Generate the *first* key from our stored array of keys
+      generateNewKey(batchKeys[0]);
     } else {
       const keyIcons = [...ICONS]
         .sort(() => 0.5 - Math.random())
@@ -294,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const button = document.createElement("button");
       button.textContent = digit;
       button.addEventListener("touchend", () => handleNumberPress(digit));
+      button.addEventListener("pointerup", () => handleNumberPress(digit));
       numberPad.appendChild(button);
     });
   }
@@ -392,16 +399,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentItemIndex > 0 && currentItemIndex % batchSize === 0) {
         let keyChanged = false;
         if (isHardMode) {
-          const currentBatchStart = currentItemIndex;
-          const nextBatchIcons = [
-            ...new Set(
-              sequence
-                .slice(currentBatchStart, currentBatchStart + batchSize)
-                .map((i) => i.icon),
-            ),
-          ].map((iconName) => ICONS.find((i) => i.icon === iconName));
-          generateNewKey(nextBatchIcons);
-          keyChanged = true;
+          const nextBatchIndex = Math.floor(currentItemIndex / batchSize);
+          // Use the pre-generated key for the new batch
+          if (batchKeys[nextBatchIndex]) {
+            generateNewKey(batchKeys[nextBatchIndex]);
+            keyChanged = true;
+          }
         } else if (isShuffleMode) {
           const currentIcons = Array.from(keyMap.keys()).map((iconName) =>
             ICONS.find((i) => i.icon === iconName),
@@ -656,45 +659,47 @@ document.addEventListener("DOMContentLoaded", () => {
   shuffleModeToggleResults.addEventListener("change", () => {
     shuffleModeToggle.checked = shuffleModeToggleResults.checked;
   });
-
-  startBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    allSessionsData = [];
-    startGame();
-  });
-  restartBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    startGame();
-  });
-  resumeBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    resumeGame();
-  });
-  pauseBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    pauseGame();
-  });
-  copyBtn.addEventListener("touchend", () => copyToClipboard(markdownStats));
-  helpBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    helpModal.classList.add("visible");
-  });
-  closeHelpBtn.addEventListener("touchend", () => {
-    triggerHaptic();
-    helpModal.classList.remove("visible");
-  });
-  helpModal.addEventListener("touchend", (e) => {
-    if (e.target === helpModal) {
+  for (let ev of ["touchend", "pointerup"]) {
+    console.log(ev);
+    startBtn.addEventListener(ev, () => {
       triggerHaptic();
-      helpModal.classList.remove("visible");
-    }
-  });
-  pauseModal.addEventListener("touchend", (e) => {
-    if (e.target === pauseModal) {
+      allSessionsData = [];
+      startGame();
+    });
+    restartBtn.addEventListener(ev, () => {
+      triggerHaptic();
+      startGame();
+    });
+    resumeBtn.addEventListener(ev, () => {
       triggerHaptic();
       resumeGame();
-    }
-  });
+    });
+    pauseBtn.addEventListener(ev, () => {
+      triggerHaptic();
+      pauseGame();
+    });
+    copyBtn.addEventListener(ev, () => copyToClipboard(markdownStats));
+    helpBtn.addEventListener(ev, () => {
+      triggerHaptic();
+      helpModal.classList.add("visible");
+    });
+    closeHelpBtn.addEventListener(ev, () => {
+      triggerHaptic();
+      helpModal.classList.remove("visible");
+    });
+    helpModal.addEventListener(ev, (e) => {
+      if (e.target === helpModal) {
+        triggerHaptic();
+        helpModal.classList.remove("visible");
+      }
+    });
+    pauseModal.addEventListener(ev, (e) => {
+      if (e.target === pauseModal) {
+        triggerHaptic();
+        resumeGame();
+      }
+    });
+  }
 
   // Initialize
   fetchSelfManifest();
