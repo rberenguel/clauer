@@ -10,6 +10,7 @@ export const elements = {
   helpModal: document.getElementById("help-modal"),
   startBtn: document.getElementById("start-btn"),
   helpBtn: document.getElementById("help-btn"),
+  resultsHelpBtn: document.getElementById("results-help-btn"),
   closeHelpBtn: document.getElementById("close-help-btn"),
   restartBtn: document.getElementById("restart-btn"),
   resumeBtn: document.getElementById("resume-btn"),
@@ -111,10 +112,9 @@ export function renderNumberPad(handleNumberPress) {
   keypadOrder.forEach((digit) => {
     const button = document.createElement("button");
     button.textContent = digit;
-    button.addEventListener("touchend", (e) => {
+    button.addEventListener("pointerdown", (e) => {
       e.preventDefault();
-      handleNumberPress(digit);
-    });
+    }); // Prevent focus/selection
     button.addEventListener("pointerup", (e) => {
       e.preventDefault();
       handleNumberPress(digit);

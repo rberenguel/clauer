@@ -23,6 +23,8 @@ export function calculateMetrics(logs, totalTimeSec) {
 
   // 1. CPM (Correct Per Minute)
   // We use the passed totalTimeSec which accounts for pauses.
+  const minutes = totalTimeSec / 60;
+
   // CRITICAL: We start the timer AFTER the first item is entered (to account for start delay).
   // So totalTimeSec covers (TotalItems - 1) items.
   // We should divide (correctLogs.length - 1) by minutes?

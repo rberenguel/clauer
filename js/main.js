@@ -166,6 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
   attach(elements.copyBtn, () => copyToClipboard(state.markdownStats));
 
   attach(elements.helpBtn, () => elements.helpModal.classList.add("visible"));
+  if (elements.resultsHelpBtn) {
+    attach(elements.resultsHelpBtn, () =>
+      elements.helpModal.classList.add("visible"),
+    );
+  }
   attach(elements.closeHelpBtn, () =>
     elements.helpModal.classList.remove("visible"),
   );

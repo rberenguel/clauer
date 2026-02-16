@@ -159,7 +159,16 @@
       </div>
 
       <div id="results-screen" class="hidden">
-        <h2>Results</h2>
+        <div class="results-header">
+          <h2>Results</h2>
+          <button
+            id="results-help-btn"
+            class="help-btn-small"
+            aria-label="Help"
+          >
+            ?
+          </button>
+        </div>
         <p id="time-result"></p>
         <p id="accuracy-result"></p>
 
@@ -318,6 +327,7 @@
             scanning. With a hidden key it also stresses working memory.
           </p>
           <p>Match the symbols as quickly and accurately as you can.</p>
+          <hr />
           <dl class="help-modes">
             <dt>Hard Mode</dt>
             <dd>
@@ -329,6 +339,24 @@
             <dd>
               The key is hidden during play. You have 9 seconds to memorize it
               at the start of each batch.
+            </dd>
+          </dl>
+          <hr />
+          <dl class="help-modes">
+            <dt>CPM (Correct/Min)</dt>
+            <dd>Throughput. <strong>Higher is better.</strong></dd>
+            <dt>CV (Stability)</dt>
+            <dd>
+              Consistency. <strong>Lower is better</strong> (0% is perfect
+              stability).
+            </dd>
+            <dt>Switch Cost</dt>
+            <dd>
+              Time lost when rule changes. <strong>Lower is better.</strong>
+            </dd>
+            <dt>IES (Efficiency)</dt>
+            <dd>
+              Speed adjusted for errors. <strong>Lower is better.</strong>
             </dd>
           </dl>
           <button id="close-help-btn">Close</button>
