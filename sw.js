@@ -1,9 +1,14 @@
-const CACHE_NAME = "clauer-cache-v0.1.2";
+const CACHE_NAME = "clauer-cache-v0.3.0";
 const urlsToCache = [
   "./",
   "./index.html",
   "./style.css",
-  "./script.js",
+  "./js/main.js",
+  "./js/game.js",
+  "./js/ui.js",
+  "./js/state.js",
+  "./js/metrics.js",
+  "./js/constants.js",
   "./haptic.js",
   "./icon.png",
   "./icon192.png",
