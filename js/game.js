@@ -1,7 +1,11 @@
 import { ICONS, PARAMS_CONFIG } from "./constants.js";
 import { state, resetStateForNewGame, updateParameter } from "./state.js";
 import * as UI from "./ui.js";
-import { logEvent, generateStatsReport, generateRecoveryGraphData } from "./metrics.js";
+import {
+  logEvent,
+  generateStatsReport,
+  generateRecoveryGraphData,
+} from "./metrics.js";
 
 // Helper to generate a key
 function generateNewKey(iconsForKey) {
@@ -20,27 +24,29 @@ export function setupGame() {
   state.isHardMode = UI.elements.hardModeToggle.checked;
   state.isMemorizeMode = UI.elements.memorizeModeToggle.checked;
   state.isShuffleMode = UI.elements.shuffleModeToggle.checked;
-  
+
   resetStateForNewGame();
 
   const { totalItems, keySize, batchSize } = state.gameParams;
 
   if (state.isHardMode) {
     const numBatches = Math.ceil(totalItems / batchSize);
-    state.batchKeys = []; 
+    state.batchKeys = [];
     for (let i = 0; i < numBatches; i++) {
-        const keyIconsForBatch = [...ICONS]
-          .sort(() => 0.5 - Math.random())
-          .slice(0, keySize);
-        state.batchKeys.push(keyIconsForBatch);
+      const keyIconsForBatch = [...ICONS]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, keySize);
+      state.batchKeys.push(keyIconsForBatch);
 
-        const itemsInThisBatch = Math.min(
-          batchSize,
-          totalItems - state.sequence.length,
+      const itemsInThisBatch = Math.min(
+        batchSize,
+        totalItems - state.sequence.length,
+      );
+      for (let j = 0; j < itemsInThisBatch; j++) {
+        state.sequence.push(
+          keyIconsForBatch[Math.floor(Math.random() * keySize)],
         );
-        for (let j = 0; j < itemsInThisBatch; j++) {
-          state.sequence.push(keyIconsForBatch[Math.floor(Math.random() * keySize)]);
-        }
+      }
     }
     generateNewKey(state.batchKeys[0]);
   } else {
@@ -60,7 +66,7 @@ export function startGame() {
   setupGame();
   state.gameActive = true;
   state.startTime = null; // Will be set on first press to exclude start delay
-  
+
   UI.elements.startScreen.classList.add("hidden");
   UI.elements.resultsScreen.classList.add("hidden");
   UI.elements.gameScreen.classList.remove("hidden");
@@ -68,7 +74,7 @@ export function startGame() {
   UI.elements.copyBtn.textContent = "Copy as Markdown";
 
   if (state.isMemorizeMode) {
-    UI.showKeyWithTimer(() => state.itemStartTime = performance.now());
+    UI.showKeyWithTimer(() => (state.itemStartTime = performance.now()));
   } else {
     UI.elements.keyDisplay.classList.remove("hidden-by-memorize");
     UI.elements.keyTimerSVG.classList.add("hidden");
@@ -79,17 +85,24 @@ export function startGame() {
 
 export function handleNumberPress(digit) {
   if (!state.gameActive || state.isPaused || state.isMemorizing) return;
-  
+
   const { totalItems, batchSize } = state.gameParams;
   const iconName = state.sequence[state.currentItemIndex].icon;
-  
+
   if (!state.currentSessionStats[iconName]) {
-    state.currentSessionStats[iconName] = { attempts: 0, correct: 0, totalTime: 0 };
+    state.currentSessionStats[iconName] = {
+      attempts: 0,
+      correct: 0,
+      totalTime: 0,
+    };
   }
-  
-  const correctDigit = state.keyMap.get(state.sequence[state.currentItemIndex].icon);
-  const currentElement = UI.elements.sequenceDisplay.children[state.currentItemIndex % batchSize];
-  
+
+  const correctDigit = state.keyMap.get(
+    state.sequence[state.currentItemIndex].icon,
+  );
+  const currentElement =
+    UI.elements.sequenceDisplay.children[state.currentItemIndex % batchSize];
+
   // Determine if this is a switch item
   // A switch happens at the start of a batch (if hard/shuffle) or maybe we treat "Switch"
   // as just the first item of a batch regardless?
@@ -100,23 +113,25 @@ export function handleNumberPress(digit) {
   // We can track if key changed in the last step.
   // Or simpler: Index % BatchSize === 0 AND (HardMode OR ShuffleMode OR Index === 0).
   // Actually, for "Recovery Speed" graph, we want position relative to batch start.
-  
+
   const isBatchStart = state.currentItemIndex % batchSize === 0;
-  const isKeyChange = isBatchStart && (state.isHardMode || state.isShuffleMode || state.currentItemIndex === 0);
-  
+  const isKeyChange =
+    isBatchStart &&
+    (state.isHardMode || state.isShuffleMode || state.currentItemIndex === 0);
+
   state.currentSessionStats[iconName].attempts++;
-  
+
   const isCorrect = digit === correctDigit;
 
   // Handle start delay: If this is the first item, set the start time NOW.
   if (state.startTime === null) {
-      state.startTime = performance.now();
-      // Reset itemStartTime so the *next* item has a correct delta.
-      // The first item's time will be whatever elapsed, but we might want to exclude it from stats?
-      // LogEvent uses (now - itemStartTime). 
-      // If we want to exclude first item from "Total Time", we set startTime now.
-      // But logEvent still records a duration. 
-      // Let's mark the first log as "warmup" or just rely on metrics calculation to use (TotalTime / (N-1))?
+    state.startTime = performance.now();
+    // Reset itemStartTime so the *next* item has a correct delta.
+    // The first item's time will be whatever elapsed, but we might want to exclude it from stats?
+    // LogEvent uses (now - itemStartTime).
+    // If we want to exclude first item from "Total Time", we set startTime now.
+    // But logEvent still records a duration.
+    // Let's mark the first log as "warmup" or just rely on metrics calculation to use (TotalTime / (N-1))?
   }
 
   // Log event
@@ -125,23 +140,26 @@ export function handleNumberPress(digit) {
   if (isCorrect) {
     UI.triggerHaptic();
     state.currentSessionStats[iconName].correct++;
-    // We already calculated time in logEvent, but we need it here for stats? 
+    // We already calculated time in logEvent, but we need it here for stats?
     // Actually logEvent uses state.itemStartTime.
-    // The existing code accumulated time here. 
+    // The existing code accumulated time here.
     const timeTaken = performance.now() - state.itemStartTime;
     state.currentSessionStats[iconName].totalTime += timeTaken;
-    
+
     currentElement.classList.add("correct-answer");
     setTimeout(() => currentElement.classList.remove("correct-answer"), 500);
-    
+
     state.currentItemIndex++;
-    
+
     if (state.currentItemIndex >= totalItems) {
       endGame();
       return;
     }
-    
-    if (state.currentItemIndex > 0 && state.currentItemIndex % batchSize === 0) {
+
+    if (
+      state.currentItemIndex > 0 &&
+      state.currentItemIndex % batchSize === 0
+    ) {
       let keyChanged = false;
       if (state.isHardMode) {
         const nextBatchIndex = Math.floor(state.currentItemIndex / batchSize);
@@ -158,10 +176,10 @@ export function handleNumberPress(digit) {
       }
 
       if (keyChanged && state.isMemorizeMode) {
-        UI.showKeyWithTimer(() => state.itemStartTime = performance.now());
+        UI.showKeyWithTimer(() => (state.itemStartTime = performance.now()));
       } else {
-          // If no memorize pause, reset timer for next item
-          state.itemStartTime = performance.now();
+        // If no memorize pause, reset timer for next item
+        state.itemStartTime = performance.now();
       }
       UI.renderSequenceBatch();
     } else {
@@ -181,7 +199,7 @@ export function handleNumberPress(digit) {
     currentElement.classList.add("shake");
     UI.triggerHapticError();
     setTimeout(() => currentElement.classList.remove("shake"), 500);
-    // Do NOT reset timer on error, as time keeps ticking? 
+    // Do NOT reset timer on error, as time keeps ticking?
     // User said "CPM penalizes you for every second wasted on a wrong answer".
     // So yes, keep timer running.
   }
@@ -211,25 +229,31 @@ export function endGame() {
     config: config,
     errors: state.errorCount,
     time: (performance.now() - state.startTime - state.totalPausedTime) / 1000,
-    logs: [...state.sessionLogs] // copy logs
+    logs: [...state.sessionLogs], // copy logs
   };
-  
+
   state.allSessionsData.push(sessionData);
-  
+
   const report = generateStatsReport(state.allSessionsData);
   UI.elements.resultsTableContainer.innerHTML = report.html;
   state.markdownStats = report.markdown;
-  
+
   // Visualize Recovery Graph
-  const recoveryData = generateRecoveryGraphData(state.sessionLogs, state.gameParams.batchSize);
+  const recoveryData = generateRecoveryGraphData(
+    state.sessionLogs,
+    state.gameParams.batchSize,
+  );
   UI.visualizeRecoveryGraph(recoveryData);
-  
+
   UI.elements.gameScreen.classList.add("hidden");
   UI.elements.resultsScreen.classList.remove("hidden");
-  
+
   // Update totals
   const finalTime = state.allSessionsData.reduce((acc, s) => acc + s.time, 0);
-  const finalErrors = state.allSessionsData.reduce((acc, s) => acc + s.errors, 0);
+  const finalErrors = state.allSessionsData.reduce(
+    (acc, s) => acc + s.errors,
+    0,
+  );
   const finalItems = state.allSessionsData.reduce(
     (acc, s) => acc + parseInt(s.config.split("/")[1], 10),
     0,
@@ -272,9 +296,9 @@ export function resumeGame() {
   UI.elements.pauseModal.classList.remove("visible");
   UI.highlightCurrentItem();
   // Don't reset itemStartTime, just account for pause?
-  // itemStartTime is used for delta. 
+  // itemStartTime is used for delta.
   // If we pause, the clock effectively stops?
   // performance.now() keeps increasing.
   // We need to shift itemStartTime forward by pause duration so the delta is small.
-  state.itemStartTime += (performance.now() - state.pauseTime);
+  state.itemStartTime += performance.now() - state.pauseTime;
 }

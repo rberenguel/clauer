@@ -19,9 +19,13 @@ export const elements = {
   hardModeToggle: document.getElementById("hard-mode-toggle"),
   hardModeToggleResults: document.getElementById("hard-mode-toggle-results"),
   memorizeModeToggle: document.getElementById("memorize-mode-toggle"),
-  memorizeModeToggleResults: document.getElementById("memorize-mode-toggle-results"),
+  memorizeModeToggleResults: document.getElementById(
+    "memorize-mode-toggle-results",
+  ),
   shuffleModeToggle: document.getElementById("shuffle-mode-toggle"),
-  shuffleModeToggleResults: document.getElementById("shuffle-mode-toggle-results"),
+  shuffleModeToggleResults: document.getElementById(
+    "shuffle-mode-toggle-results",
+  ),
   keyDisplayWrapper: document.getElementById("key-display-wrapper"),
   keyDisplay: document.getElementById("key-display"),
   keyTimerSVG: document.getElementById("key-timer"),
@@ -33,8 +37,10 @@ export const elements = {
   accuracyResult: document.getElementById("accuracy-result"),
   batchProgress: document.getElementById("batch-progress"),
   // New element for graph
-  recoveryGraphContainer: document.getElementById("recovery-graph-container") || createGraphContainer(), 
-  
+  recoveryGraphContainer:
+    document.getElementById("recovery-graph-container") ||
+    createGraphContainer(),
+
   paramValueInputs: {
     totalItems: [
       document.getElementById("total-items-value"),
@@ -48,12 +54,12 @@ export const elements = {
       document.getElementById("batch-size-value"),
       document.getElementById("batch-size-value-results"),
     ],
-  }
+  },
 };
 
 function createGraphContainer() {
-  // If it doesn't exist yet (will look for it in HTML update later), 
-  // we might return null or handle it. 
+  // If it doesn't exist yet (will look for it in HTML update later),
+  // we might return null or handle it.
   // Ideally index.html is updated before this runs, but module load might be early.
   // We'll return null and handle checks.
   return null;
@@ -61,7 +67,7 @@ function createGraphContainer() {
 
 export function initUI() {
   initHaptic();
-  
+
   if (elements.iconPreviewGrid) {
     elements.iconPreviewGrid.innerHTML = "";
     const randomizedIcons = [...ICONS].sort(() => 0.5 - Math.random());
@@ -105,8 +111,14 @@ export function renderNumberPad(handleNumberPress) {
   keypadOrder.forEach((digit) => {
     const button = document.createElement("button");
     button.textContent = digit;
-    button.addEventListener("touchend", (e) => { e.preventDefault(); handleNumberPress(digit); });
-    button.addEventListener("pointerup", (e) => { e.preventDefault(); handleNumberPress(digit); });
+    button.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      handleNumberPress(digit);
+    });
+    button.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      handleNumberPress(digit);
+    });
     elements.numberPad.appendChild(button);
   });
 }
@@ -144,8 +156,10 @@ export function highlightCurrentItem() {
 
   if (state.currentItemIndex >= state.gameParams.totalItems) return;
 
-  const sequenceIndexInBatch = state.currentItemIndex % state.gameParams.batchSize;
-  const currentElement = elements.sequenceDisplay.children[sequenceIndexInBatch];
+  const sequenceIndexInBatch =
+    state.currentItemIndex % state.gameParams.batchSize;
+  const currentElement =
+    elements.sequenceDisplay.children[sequenceIndexInBatch];
   if (currentElement) {
     currentElement.classList.add("current-item");
   }
@@ -155,7 +169,7 @@ export function showKeyWithTimer(callback) {
   state.isMemorizing = true;
   elements.keyDisplay.classList.remove("hidden-by-memorize");
   elements.keyTimerSVG.classList.remove("hidden");
-  
+
   setTimeout(() => {
     const rect = elements.keyTimerSVG.querySelector("rect");
 
@@ -193,62 +207,62 @@ export function visualizeRecoveryGraph(graphData) {
   // Get container again if it wasn't there at init
   const container = document.getElementById("recovery-graph-container");
   if (!container) return;
-  
+
   container.innerHTML = "<h3>Recovery Speed (ms)</h3>";
   if (!graphData || graphData.data.length === 0) return;
 
-  const graph = document.createElement('div');
-  graph.className = 'recovery-graph';
-  graph.style.display = 'flex';
-  graph.style.alignItems = 'flex-end';
-  graph.style.height = '150px';
-  graph.style.gap = '10px';
-  graph.style.padding = '10px';
-  graph.style.marginTop = '10px';
-  graph.style.borderLeft = '1px solid var(--text)';
-  graph.style.borderBottom = '1px solid var(--text)';
+  const graph = document.createElement("div");
+  graph.className = "recovery-graph";
+  graph.style.display = "flex";
+  graph.style.alignItems = "flex-end";
+  graph.style.height = "150px";
+  graph.style.gap = "10px";
+  graph.style.padding = "10px";
+  graph.style.marginTop = "10px";
+  graph.style.borderLeft = "1px solid var(--text)";
+  graph.style.borderBottom = "1px solid var(--text)";
 
   const maxVal = Math.max(...graphData.data, 100); // Avoid divide by zero
 
   graphData.data.forEach((val, idx) => {
-    const barContainer = document.createElement('div');
-    barContainer.style.flex = '1';
-    barContainer.style.display = 'flex';
-    barContainer.style.flexDirection = 'column';
-    barContainer.style.alignItems = 'center';
-    barContainer.style.justifyContent = 'flex-end';
-    barContainer.style.height = '100%';
+    const barContainer = document.createElement("div");
+    barContainer.style.flex = "1";
+    barContainer.style.display = "flex";
+    barContainer.style.flexDirection = "column";
+    barContainer.style.alignItems = "center";
+    barContainer.style.justifyContent = "flex-end";
+    barContainer.style.height = "100%";
 
-    const bar = document.createElement('div');
+    const bar = document.createElement("div");
     const heightPct = (val / maxVal) * 100;
-    
-    bar.style.width = '100%';
+
+    bar.style.width = "100%";
     bar.style.height = `${heightPct}%`;
-    bar.style.backgroundColor = 'var(--primary)';
-    bar.style.borderRadius = '2px 2px 0 0';
-    
+    bar.style.backgroundColor = "var(--primary)";
+    bar.style.borderRadius = "2px 2px 0 0";
+
     // Switch color for the first item (Switch)
     if (idx === 0) {
-      bar.style.backgroundColor = '#ff6b6b'; 
+      bar.style.backgroundColor = "#ff6b6b";
     }
 
-    const label = document.createElement('div');
+    const label = document.createElement("div");
     label.textContent = graphData.labels[idx];
-    label.style.fontSize = '10px';
-    label.style.marginTop = '4px';
+    label.style.fontSize = "10px";
+    label.style.marginTop = "4px";
 
-    const valueLabel = document.createElement('div');
+    const valueLabel = document.createElement("div");
     valueLabel.textContent = val > 0 ? val : "";
-    valueLabel.style.fontSize = '10px';
-    valueLabel.style.marginBottom = '2px';
-    
+    valueLabel.style.fontSize = "10px";
+    valueLabel.style.marginBottom = "2px";
+
     barContainer.appendChild(valueLabel);
     barContainer.appendChild(bar);
     barContainer.appendChild(label);
-    
+
     graph.appendChild(barContainer);
   });
-  
+
   container.appendChild(graph);
 }
 

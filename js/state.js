@@ -19,7 +19,7 @@ export const state = {
   currentSessionStats: {},
   // Detailed logs for granular metrics
   // Each entry: { timestamp, responseTime, correct, isSwitch, itemIndex, batchIndex }
-  sessionLogs: [], 
+  sessionLogs: [],
   allSessionsData: [],
   batchKeys: [],
   itemStartTime: 0,
@@ -32,12 +32,12 @@ export function resetStateForNewGame() {
   state.totalPausedTime = 0;
   state.isPaused = false;
   state.isMemorizing = false;
-  
+
   if (state.memorizeTimer) {
     clearTimeout(state.memorizeTimer);
     state.memorizeTimer = null;
   }
-  
+
   state.sequence = [];
   state.keyMap.clear();
   state.currentSessionStats = {};

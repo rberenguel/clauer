@@ -1,61 +1,64 @@
 const CACHE_NAME = "clauer-cache-v0.3.0";
-const urlsToCache = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./js/main.js",
-  "./js/game.js",
-  "./js/ui.js",
-  "./js/state.js",
-  "./js/metrics.js",
-  "./js/constants.js",
-  "./haptic.js",
-  "./icon.png",
-  "./icon192.png",
+const CACHE_FILES = [
   "./fonts/InterDisplay-Bold.woff2",
   "./fonts/InterDisplay-Italic.woff2",
   "./fonts/InterDisplay-Regular.woff2",
+  "./fonts/iconoir/iconoir-font.css",
   "./fonts/iconoir/iconoir.css",
   "./fonts/iconoir/iconoir.woff2",
-  "./fonts/iconoir/iconoir-font.css",
   "./fonts/inter.css",
+  "./haptic.js",
+  "./icon.png",
+  "./icon192.png",
+  "./index.html",
+  "./js/constants.js",
+  "./js/game.js",
+  "./js/main.js",
+  "./js/metrics.js",
+  "./js/state.js",
+  "./js/ui.js",
+  "./manifest.json",
+  "./style.css",
 ];
 
-// Install event: opens a cache and adds the core files to it.
-self.addEventListener("install", function (event) {
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      console.log("Opened cache");
-      return cache.addAll(urlsToCache);
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(CACHE_FILES).then(() => {
+        // Activate immediately, don't wait for tabs to close
+        return self.skipWaiting();
+      });
     }),
   );
 });
 
-// Fetch event: serves assets from cache if available, otherwise fetches from network.
-self.addEventListener("fetch", function (event) {
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then(function (response) {
-      // Cache hit - return response
-      if (response) {
-        return response;
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
       }
-      return fetch(event.request);
+      return fetch(event.request).catch(() => {
+        // Network failed and not in cache - for navigation, return cached index.html
+        if (event.request.mode === "navigate") {
+          return caches.match("./index.html");
+        }
+      });
     }),
   );
 });
 
-// Activate event: cleans up old caches.
-self.addEventListener("activate", function (event) {
-  const cacheWhitelist = [CACHE_NAME];
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then(function (cacheNames) {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(function (cacheName) {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) return caches.delete(name);
         }),
-      );
+      ).then(() => {
+        // Take control of all pages immediately
+        return self.clients.claim();
+      });
     }),
   );
 });
