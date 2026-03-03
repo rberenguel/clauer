@@ -1,4 +1,4 @@
-const CACHE_NAME = "clauer-cache-v0.3.0";
+const CACHE_NAME = "clauer-cache-v0.3.3";
 const CACHE_FILES = [
   "./fonts/InterDisplay-Bold.woff2",
   "./fonts/InterDisplay-Italic.woff2",
@@ -46,6 +46,12 @@ self.addEventListener("fetch", (event) => {
       });
     }),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {

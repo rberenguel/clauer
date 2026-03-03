@@ -23,6 +23,9 @@
           <button id="start-btn">Start</button>
           <button id="help-btn" aria-label="Help">?</button>
         </div>
+        <div id="update-banner" class="hidden">
+           Update available — <a href="#" id="update-link">reload</a>
+        </div>
         <div class="game-parameters">
           <div class="param-control">
             <label>Total Items</label>
@@ -373,6 +376,37 @@
                 "ServiceWorker registration successful with scope: ",
                 registration.scope,
               );
+
+              function showUpdateBanner() {
+                document.getElementById("update-banner").classList.remove("hidden");
+              }
+
+              function promptUpdate(worker) {
+                showUpdateBanner();
+                document.getElementById("update-link").addEventListener("click", function (e) {
+                  e.preventDefault();
+                  worker.postMessage({ type: "SKIP_WAITING" });
+                });
+              }
+
+              // A new SW is already waiting (e.g. page was open during last update)
+              if (registration.waiting) {
+                promptUpdate(registration.waiting);
+              }
+
+              registration.addEventListener("updatefound", function () {
+                var newWorker = registration.installing;
+                newWorker.addEventListener("statechange", function () {
+                  if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                    promptUpdate(newWorker);
+                  }
+                });
+              });
+
+              // Reload once the new SW takes control
+              navigator.serviceWorker.addEventListener("controllerchange", function () {
+                window.location.reload();
+              });
             },
             function (err) {
               console.log("ServiceWorker registration failed: ", err);

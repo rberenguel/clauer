@@ -7,6 +7,16 @@ import {
   generateRecoveryGraphData,
 } from "./metrics.js";
 
+// Pick a random item from pool, avoiding repeating prev (if pool has >1 item)
+function pickNonRepeating(pool, prev) {
+  if (pool.length <= 1) return pool[0];
+  let pick;
+  do {
+    pick = pool[Math.floor(Math.random() * pool.length)];
+  } while (pick === prev);
+  return pick;
+}
+
 // Helper to generate a key
 function generateNewKey(iconsForKey) {
   state.keyMap.clear();
@@ -42,10 +52,11 @@ export function setupGame() {
         batchSize,
         totalItems - state.sequence.length,
       );
+      let prev = null;
       for (let j = 0; j < itemsInThisBatch; j++) {
-        state.sequence.push(
-          keyIconsForBatch[Math.floor(Math.random() * keySize)],
-        );
+        const pick = pickNonRepeating(keyIconsForBatch, prev);
+        state.sequence.push(pick);
+        prev = pick;
       }
     }
     generateNewKey(state.batchKeys[0]);
@@ -54,8 +65,11 @@ export function setupGame() {
       .sort(() => 0.5 - Math.random())
       .slice(0, keySize);
     generateNewKey(keyIcons);
+    let prev = null;
     for (let i = 0; i < totalItems; i++) {
-      state.sequence.push(keyIcons[Math.floor(Math.random() * keySize)]);
+      const pick = pickNonRepeating(keyIcons, prev);
+      state.sequence.push(pick);
+      prev = pick;
     }
   }
 
