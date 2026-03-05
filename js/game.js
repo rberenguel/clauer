@@ -6,6 +6,7 @@ import {
   generateStatsReport,
   generateRecoveryGraphData,
 } from "./metrics.js";
+import { saveSessionRecord } from "./storage.js";
 
 // Pick a random item from pool, avoiding repeating prev (if pool has >1 item)
 function pickNonRepeating(pool, prev) {
@@ -247,6 +248,7 @@ export function endGame() {
   };
 
   state.allSessionsData.push(sessionData);
+  saveSessionRecord(sessionData);
 
   const report = generateStatsReport(state.allSessionsData);
   UI.elements.resultsTableContainer.innerHTML = report.html;

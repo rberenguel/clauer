@@ -59,7 +59,8 @@ button {
   flex-grow: unset;
   margin-top: 0;
 }
-#help-btn {
+#help-btn,
+#stats-btn {
   background-color: var(--surface);
   color: var(--text);
   border: 1px solid var(--text);
@@ -133,7 +134,308 @@ button {
   box-shadow: 0 0 15px var(--error);
 }
 .correct-answer {
-  animation: fade-green 0.5s ease-out;
+  animation: none;
+}
+
+/* History Calendar View */
+#history-modal .modal-content {
+  padding: 1.2rem 0;
+  width: 90%;
+  max-width: 380px;
+  height: 90vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#history-modal h2 {
+  font-size: 1.4rem;
+  margin: 0 1.2rem 0.5rem 1.2rem;
+}
+
+#history-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 1.2rem;
+}
+
+.calendar-streak {
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendar-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.calendar-nav {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.calendar-nav:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-nav:active {
+  transform: scale(0.95);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: 0.5;
+  text-transform: uppercase;
+  padding-bottom: 0.25rem;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+  color: var(--text);
+  transition: transform 0.1s ease;
+}
+
+.calendar-day.empty {
+  background: transparent;
+}
+
+.calendar-day.has-sessions {
+  background: rgba(97, 175, 239, 0.15);
+  border: 1px solid rgba(97, 175, 239, 0.3);
+  cursor: pointer;
+}
+
+.calendar-day.has-sessions:hover {
+  background: rgba(97, 175, 239, 0.25);
+  transform: scale(1.05);
+}
+
+.calendar-day.today {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: bold;
+}
+
+.calendar-day-number {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.session-indicator {
+  font-size: 0.55rem;
+  opacity: 0.8;
+  line-height: 1;
+  color: var(--primary);
+}
+
+/* Day Details / Sessions List */
+.day-details {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--surface);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+  box-sizing: border-box;
+}
+
+.day-details.hidden {
+  display: none !important;
+}
+
+.day-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.day-details-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.close-details {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  margin: 0;
+  opacity: 0.7;
+}
+
+.close-details:hover {
+  opacity: 1;
+}
+
+.day-sessions {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.session-card {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: default;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: left;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.session-header strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.session-time {
+  opacity: 0.6;
+  font-size: 0.75rem;
+}
+
+.session-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.session-stats span {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+/* History Trend Graphs */
+.history-trends {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px 0 10px 0;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trend-chart {
+  display: flex;
+  flex-direction: column;
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: var(--text);
+  opacity: 0.9;
+}
+
+.trend-label strong {
+  color: var(--primary);
+}
+
+.trend-best {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 40px;
+  gap: 2px;
+  width: 100%;
+}
+
+.trend-bar {
+  flex: 1;
+  background-color: var(--primary);
+  opacity: 0.7;
+  border-radius: 1px 1px 0 0;
+  min-height: 2px;
+}
+
+.trend-bar.high {
+  opacity: 1;
+}
+
+.trend-bar.low {
+  background-color: var(--error);
+}
+
+#close-history-btn {
+  width: calc(100% - 2.4rem);
+  margin: 10px 1.2rem 0 1.2rem;
+  padding: 10px;
 }
 @keyframes fade-green {
   from {

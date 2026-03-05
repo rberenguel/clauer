@@ -9,6 +9,11 @@ import {
 import { startGame, pauseGame, resumeGame, handleNumberPress } from "./game.js";
 import { state, updateParameter } from "./state.js";
 import { PARAMS_CONFIG } from "./constants.js";
+import { openHistoryModal } from "./history.js";
+import { injectFakeHistory } from "./faker.js";
+
+// Make faker accessible from console
+window.injectFakeHistory = injectFakeHistory;
 
 async function fetchSelfManifest() {
   try {
@@ -175,6 +180,11 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.helpModal.classList.remove("visible"),
   );
 
+  attach(elements.statsBtn, () => openHistoryModal());
+  attach(elements.closeHistoryBtn, () =>
+    elements.historyModal.classList.remove("visible"),
+  );
+
   // Modal background clicks
   for (let ev of ["touchend", "pointerup"]) {
     elements.helpModal.addEventListener(ev, (e) => {
@@ -189,6 +199,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         triggerHaptic();
         resumeGame();
+      }
+    });
+    elements.historyModal.addEventListener(ev, (e) => {
+      if (e.target === elements.historyModal) {
+        e.preventDefault();
+        triggerHaptic();
+        elements.historyModal.classList.remove("visible");
       }
     });
   }

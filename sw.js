@@ -1,4 +1,4 @@
-const CACHE_NAME = "clauer-cache-v0.3.3";
+const CACHE_NAME = "clauer-cache-v0.3.4";
 const CACHE_FILES = [
   "./fonts/InterDisplay-Bold.woff2",
   "./fonts/InterDisplay-Italic.woff2",

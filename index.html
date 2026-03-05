@@ -21,6 +21,7 @@
         <div id="icon-preview-grid" class="preview-grid-gradient"></div>
         <div class="start-buttons-container">
           <button id="start-btn">Start</button>
+          <button id="stats-btn" aria-label="Stats" class="icon-btn"><span class="iconoir iconoir-calendar"></span></button>
           <button id="help-btn" aria-label="Help">?</button>
         </div>
         <div id="update-banner" class="hidden">
@@ -365,7 +366,17 @@
           <button id="close-help-btn">Close</button>
         </div>
       </div>
-    </div>
+
+      <!-- History Modal (Calendar View) -->
+      <div id="history-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h2>History</h2>
+          <div id="history-list">
+            <!-- Calendar grid will be generated here -->
+          </div>
+          <button id="close-history-btn">Close</button>
+        </div>
+      </div>
     <script type="module" src="js/main.js"></script>
     <script>
       if ("serviceWorker" in navigator) {
